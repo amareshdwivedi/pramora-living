@@ -7,16 +7,16 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
-  if (!mounted) return <div className="w-9 h-9" />
+  if (!mounted) return <div className="w-8 h-8" />
 
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-200 hover:border-gold-500 hover:text-gold-500"
-      style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
+      className="w-8 h-8 flex items-center justify-center transition-opacity hover:opacity-60"
+      style={{ color: 'var(--text-2)' }}
       aria-label="Toggle theme"
     >
-      {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+      {theme === 'dark' ? <Sun size={15} strokeWidth={1.5} /> : <Moon size={15} strokeWidth={1.5} />}
     </button>
   )
 }

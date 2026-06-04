@@ -3,43 +3,59 @@ import { Instagram, Facebook, Twitter, MessageCircle } from 'lucide-react'
 
 const SOCIAL = [
   { label: 'Instagram', href: 'https://instagram.com/pramoraliving', icon: Instagram },
-  { label: 'Facebook',  href: 'https://facebook.com/pramoraliving', icon: Facebook },
-  { label: 'Twitter',   href: 'https://twitter.com/pramoraliving', icon: Twitter },
-  { label: 'WhatsApp',  href: 'https://wa.me/919880009575', icon: MessageCircle },
+  { label: 'Facebook',  href: 'https://facebook.com/pramoraliving',  icon: Facebook },
+  { label: 'Twitter',   href: 'https://twitter.com/pramoraliving',   icon: Twitter },
+  { label: 'WhatsApp',  href: 'https://wa.me/919880009575',          icon: MessageCircle },
 ]
 
-const SHOP_LINKS = [
-  { label: 'Shop on Amazon',   href: 'https://amazon.in', color: '#FF9900' },
-  { label: 'Shop on Flipkart', href: 'https://flipkart.com', color: '#2874F0' },
-  { label: 'Shop on Meesho',   href: 'https://meesho.com', color: '#9B2D8E' },
-  { label: 'WhatsApp Store',   href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366' },
+const SHOP = [
+  { label: 'Amazon',        href: 'https://amazon.in',      color: '#FF9900' },
+  { label: 'Flipkart',      href: 'https://flipkart.com',   color: '#2874F0' },
+  { label: 'Meesho',        href: 'https://meesho.com',     color: '#9B2D8E' },
+  { label: 'WhatsApp Store',href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366' },
 ]
 
 export function Footer() {
   return (
-    <footer className="border-t mt-20" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-2)' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-
+    <footer className="border-t mt-28" style={{ borderColor: 'var(--border)' }}>
+      {/* Top section */}
+      <div className="container-craft py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
-        <div className="lg:col-span-1">
-          <h3 className="font-serif text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>Pramora Living</h3>
-          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan Home Décor</p>
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-            Curated luxury sculptures and home décor pieces that bring elegance, culture, and artistry into your living space.
+        <div className="sm:col-span-2 lg:col-span-1">
+          <Link href="/" className="font-serif text-xl" style={{ color: 'var(--text)' }}>
+            Pramora Living
+          </Link>
+          <p className="body-text mt-4 text-xs leading-relaxed">
+            Curated artisan sculptures and home décor that bring culture, meaning, and beauty to everyday living spaces.
           </p>
+          {/* Social */}
+          <div className="flex gap-4 mt-6">
+            {SOCIAL.map(s => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                aria-label={s.label}
+                className="transition-opacity hover:opacity-50"
+                style={{ color: 'var(--text-2)' }}
+              >
+                <s.icon size={16} strokeWidth={1.5} />
+              </a>
+            ))}
+          </div>
         </div>
 
-        {/* Quick Links */}
+        {/* Navigation */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Quick Links</h4>
+          <p className="overline mb-5">Navigate</p>
           <ul className="space-y-3">
             {[
               { label: 'Home', href: '/' },
               { label: 'Products', href: '/products' },
-              { label: 'Contact Us', href: '/contact' },
+              { label: 'Contact', href: '/contact' },
             ].map(l => (
               <li key={l.href}>
-                <Link href={l.href} className="text-sm hover:text-gold-500 transition-colors" style={{ color: 'var(--text-2)' }}>
+                <Link href={l.href}
+                  className="text-sm font-light transition-opacity hover:opacity-50"
+                  style={{ color: 'var(--text-2)' }}
+                >
                   {l.label}
                 </Link>
               </li>
@@ -49,18 +65,15 @@ export function Footer() {
 
         {/* Buy Online */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Buy Online</h4>
+          <p className="overline mb-5">Buy Online</p>
           <ul className="space-y-3">
-            {SHOP_LINKS.map(l => (
+            {SHOP.map(l => (
               <li key={l.label}>
-                <a
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm flex items-center gap-2 hover:opacity-80 transition-opacity font-medium"
-                  style={{ color: l.color }}
+                <a href={l.href} target="_blank" rel="noopener noreferrer"
+                  className="text-sm font-light flex items-center gap-2 transition-opacity hover:opacity-60"
+                  style={{ color: 'var(--text-2)' }}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: l.color }} />
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: l.color }} />
                   {l.label}
                 </a>
               </li>
@@ -68,34 +81,36 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* Social */}
+        {/* Contact */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Follow Us</h4>
-          <div className="flex flex-wrap gap-3 mb-6">
-            {SOCIAL.map(s => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={s.label}
-                className="w-9 h-9 flex items-center justify-center border rounded-full transition-all hover:border-gold-500 hover:text-gold-500"
-                style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
-              >
-                <s.icon size={16} />
-              </a>
-            ))}
-          </div>
-          <p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>
-            📍 Bengaluru, Karnataka, India<br />
-            📞 +91 98800 09575<br />
-            ✉ hello@pramoraliving.com
-          </p>
+          <p className="overline mb-5">Contact</p>
+          <ul className="space-y-3 text-sm font-light" style={{ color: 'var(--text-2)' }}>
+            <li>Bengaluru, Karnataka — 560087</li>
+            <li>
+              <a href="tel:+919880009575" className="hover:opacity-60 transition-opacity">+91 98800 09575</a>
+            </li>
+            <li>
+              <a href="mailto:hello@pramoraliving.com" className="hover:opacity-60 transition-opacity">hello@pramoraliving.com</a>
+            </li>
+            <li>
+              <a href="https://wa.me/919880009575" target="_blank" rel="noopener noreferrer"
+                className="hover:opacity-60 transition-opacity">WhatsApp Us</a>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div className="border-t py-5 px-4 text-center text-xs" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>
-        © {new Date().getFullYear()} Pramora Living. All rights reserved. Crafted with care in India.
+      {/* Bottom bar */}
+      <div
+        className="border-t py-5 container-craft flex flex-col sm:flex-row items-center justify-between gap-2"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <p className="text-2xs uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+          © {new Date().getFullYear()} Pramora Living
+        </p>
+        <p className="text-2xs uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
+          Crafted with care in India
+        </p>
       </div>
     </footer>
   )

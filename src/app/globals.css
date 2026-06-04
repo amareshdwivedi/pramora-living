@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,80 +6,120 @@
 
 @layer base {
   :root {
-    --bg: #FAF7F0;
-    --bg-2: #F4EDD8;
-    --text: #2C1810;
-    --text-2: #6B5744;
-    --gold: #C4962A;
-    --border: #E8D9BE;
+    --bg:       #FAF8F5;
+    --bg-2:     #F3EDE4;
+    --bg-3:     #EAE0D2;
+    --text:     #1C1916;
+    --text-2:   #6B6560;
+    --text-3:   #9B9590;
+    --border:   #E2D9CC;
+    --accent:   #1C1916;
   }
   .dark {
-    --bg: #120E0A;
-    --bg-2: #1A1410;
-    --text: #F5EDD6;
-    --text-2: #C4A882;
-    --gold: #D4A843;
-    --border: #2E2418;
+    --bg:       #141210;
+    --bg-2:     #1C1916;
+    --bg-3:     #252118;
+    --text:     #F5F0EA;
+    --text-2:   #A89F95;
+    --text-3:   #6B6560;
+    --border:   #2E2924;
+    --accent:   #F5F0EA;
   }
+
   html { scroll-behavior: smooth; }
+
   body {
-    @apply font-sans;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 300;
     background-color: var(--bg);
     color: var(--text);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 { @apply font-serif; }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+  }
 }
 
 @layer components {
-  .btn-gold {
-    @apply inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-medium rounded-none transition-all duration-200 tracking-wide text-sm uppercase;
+  /* Buttons — square, no radius, Craft style */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 text-xs tracking-widest uppercase font-sans font-medium transition-all duration-200;
+    background-color: var(--text);
+    color: var(--bg);
   }
-  .btn-outline {
-    @apply inline-flex items-center gap-2 px-6 py-3 border border-gold-500 text-gold-600 dark:text-gold-400 hover:bg-gold-500 hover:text-white font-medium rounded-none transition-all duration-200 tracking-wide text-sm uppercase;
-  }
-  .section-title {
-    @apply font-serif text-3xl md:text-4xl font-medium text-bark-600 dark:text-cream-200 mb-3;
-  }
-  .section-subtitle {
-    @apply text-bark-400 dark:text-bark-200 text-base mb-10 max-w-xl;
-  }
-  .card {
-    background-color: var(--bg-2);
-    border: 1px solid var(--border);
-    @apply transition-all duration-300;
-  }
-  .divider {
-    @apply w-16 h-0.5 bg-gold-500 mb-6;
-  }
-  .price-badge {
-    @apply font-serif text-xl font-semibold text-bark-600 dark:text-cream-200;
-  }
-  .compare-price {
-    @apply text-sm line-through text-bark-300 dark:text-bark-200 ml-2;
-  }
-  .tag {
-    @apply text-xs px-2 py-0.5 border border-gold-400 text-gold-600 dark:text-gold-300 dark:border-gold-600 capitalize;
-  }
-  .input {
-    @apply w-full px-4 py-3 border text-sm font-sans outline-none focus:ring-1 focus:ring-gold-500 transition-all;
-    background-color: var(--bg);
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-8 py-3.5 text-xs tracking-widest uppercase font-sans font-medium border transition-all duration-200;
     border-color: var(--border);
     color: var(--text);
   }
-  .label {
-    @apply block text-xs font-medium uppercase tracking-widest mb-2;
+  .btn-secondary:hover { border-color: var(--text); }
+
+  /* Section layout */
+  .container-craft {
+    @apply max-w-7xl mx-auto px-5 sm:px-8 lg:px-12;
+  }
+
+  /* Overline label */
+  .overline {
+    @apply text-2xs uppercase tracking-widest font-sans font-medium;
+    color: var(--text-3);
+  }
+
+  /* Section heading */
+  .display-heading {
+    @apply font-serif text-4xl md:text-5xl lg:text-6xl leading-tight;
+    color: var(--text);
+  }
+
+  /* Body text */
+  .body-text {
+    @apply font-sans text-sm leading-relaxed font-light;
+    color: var(--text-2);
+  }
+
+  /* Divider */
+  .rule {
+    @apply w-8 h-px my-5;
+    background-color: var(--border);
+  }
+
+  /* Input */
+  .craft-input {
+    @apply w-full px-4 py-3 text-sm font-sans font-light border-0 border-b outline-none bg-transparent transition-colors duration-200 placeholder:font-light;
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .craft-input:focus { border-color: var(--text); }
+  .craft-input::placeholder { color: var(--text-3); }
+
+  .craft-label {
+    @apply block text-2xs uppercase tracking-widest font-medium mb-2;
+    color: var(--text-3);
+  }
+
+  /* Tag pill */
+  .craft-tag {
+    @apply text-2xs uppercase tracking-widest px-2.5 py-1 border font-medium;
+    border-color: var(--border);
     color: var(--text-2);
   }
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); }
 
-/* Product image hover */
-.product-img-wrap { overflow: hidden; }
-.product-img-wrap img { transition: transform 0.5s ease; }
-.product-img-wrap:hover img { transform: scale(1.06); }
+/* Image hover */
+.img-hover { overflow: hidden; }
+.img-hover img { transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.img-hover:hover img { transform: scale(1.04); }
+
+/* Prose overrides */
+.craft-prose p { margin-bottom: 1rem; font-weight: 300; line-height: 1.75; }
+.craft-prose strong { font-weight: 500; }

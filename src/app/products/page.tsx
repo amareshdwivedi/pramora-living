@@ -3,34 +3,34 @@ import { ProductCard } from '@/components/ProductCard'
 
 export default function ProductsPage() {
   const products = getProducts().filter(p => p.status === 'active')
-  const types = [...new Set(products.map(p => p.type))]
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+    <div className="container-craft py-16 md:py-24">
       {/* Header */}
-      <div className="text-center mb-12">
-        <p className="text-xs uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--gold)' }}>Our Collection</p>
-        <h1 className="section-title">All Products</h1>
-        <div className="divider mx-auto" />
-        <p className="section-subtitle mx-auto text-center">
-          Handcrafted sculptures and home décor pieces for every taste and space.
+      <div className="text-center mb-16">
+        <p className="overline mb-4">Pramora Living</p>
+        <h1 className="font-serif text-4xl md:text-5xl mb-4" style={{ color: 'var(--text)' }}>
+          The Collection
+        </h1>
+        <div className="rule mx-auto" />
+        <p className="body-text max-w-md mx-auto">
+          Handcrafted sculptures and home décor, made with care and chosen for beauty.
         </p>
-        {/* Category filters */}
-        <div className="flex flex-wrap justify-center gap-2 mt-2">
-          {types.map(t => (
-            <span key={t} className="tag py-1 px-3 text-xs">{t}</span>
-          ))}
-        </div>
+        <p className="overline mt-6" style={{ color: 'var(--text-3)' }}>
+          {products.length} pieces
+        </p>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-14">
         {products.map(p => <ProductCard key={p.handle} product={p} />)}
       </div>
 
       {products.length === 0 && (
-        <div className="text-center py-20" style={{ color: 'var(--text-2)' }}>
-          <p className="text-lg font-serif">No products available yet.</p>
+        <div className="text-center py-24">
+          <p className="font-serif text-2xl" style={{ color: 'var(--text-2)' }}>
+            No products available yet.
+          </p>
         </div>
       )}
     </div>

@@ -6,46 +6,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        cream: {
-          50:  '#FDFBF7',
-          100: '#FAF7F0',
-          200: '#F4EDD8',
-          300: '#EAD9B8',
+        ivory: {
+          50:  '#FDFCFB',
+          100: '#FAF8F5',
+          200: '#F5F0EA',
+          300: '#EDE5D8',
+          400: '#DDD0BC',
         },
-        gold: {
-          300: '#E8C46A',
-          400: '#D4A843',
-          500: '#C4962A',
-          600: '#A67C22',
-          700: '#8B6914',
+        stone: {
+          750: '#44403C',
+          850: '#292524',
+          950: '#0C0A09',
         },
-        bark: {
-          50:  '#F5EDE4',
-          100: '#E8D5C4',
-          200: '#C4A882',
-          300: '#A07850',
-          400: '#6B5744',
-          500: '#4A3728',
-          600: '#2C1810',
-          700: '#1A0E08',
-        },
-        charcoal: {
-          800: '#1A1410',
-          900: '#120E0A',
-          950: '#0A0806',
+        craft: {
+          bg:      '#FAF8F5',
+          'bg-2':  '#F3EDE4',
+          text:    '#1C1916',
+          'text-2':'#6B6560',
+          border:  '#E2D9CC',
+          accent:  '#1C1916',
         }
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+        sans:  ['"DM Sans"', 'system-ui', 'sans-serif'],
       },
-      animation: {
-        'fade-in': 'fadeIn 0.6s ease-out',
-        'slide-up': 'slideUp 0.5s ease-out',
+      fontSize: {
+        '2xs': ['0.65rem', { lineHeight: '1rem' }],
       },
-      keyframes: {
-        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+      letterSpacing: {
+        widest2: '0.25em',
+      },
+      maxWidth: {
+        '8xl': '88rem',
       },
     },
   },
