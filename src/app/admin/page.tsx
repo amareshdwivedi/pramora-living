@@ -1,0 +1,259 @@
+'use client'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
+import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff } from 'lucide-react'
+import type { Product } from '@/lib/types'
+
+const EMPTY: Omit<Product, 'id'> = {
+  handle: '', title: '', description: '', type: 'Sculpture',
+  tags: [], price: 0, compareAtPrice: 0, sku: '', image: '',
+  status: 'active', amazonUrl: '', flipkartUrl: '', meeshoUrl: '',
+}
+
+export default function AdminPage() {
+  const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [authed, setAuthed] = useState(false)
+  const [authErr, setAuthErr] = useState('')
+  const [products, setProducts] = useState<Product[]>([])
+  const [editing, setEditing] = useState<Product | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [form, setForm] = useState<Omit<Product, 'id'>>(EMPTY)
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+
+  const headers = { 'Content-Type': 'application/json', 'x-admin-password': password }
+
+  const load = useCallback(async () => {
+    const res = await fetch('/api/products')
+    setProducts(await res.json())
+  }, [])
+
+  const login = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const res = await fetch('/api/products', { headers: { 'x-admin-password': password } })
+    if (res.ok) { setAuthed(true); load() }
+    else setAuthErr('Incorrect password. Try again.')
+  }
+
+  const flash = (m: string) => { setMsg(m); setTimeout(() => setMsg(''), 3000) }
+
+  const startEdit = (p: Product) => { setEditing(p); setForm({ ...p }); setCreating(false) }
+  const startCreate = () => { setCreating(true); setEditing(null); setForm({ ...EMPTY }) }
+  const cancel = () => { setEditing(null); setCreating(false) }
+
+  const save = async () => {
+    setSaving(true)
+    try {
+      if (creating) {
+        const res = await fetch('/api/products', { method: 'POST', headers, body: JSON.stringify(form) })
+        if (res.ok) { flash('Product created!'); load(); cancel() }
+        else flash('Error creating product.')
+      } else if (editing) {
+        const res = await fetch(`/api/products/${editing.handle}`, { method: 'PUT', headers, body: JSON.stringify(form) })
+        if (res.ok) { flash('Product updated!'); load(); cancel() }
+        else flash('Error updating product.')
+      }
+    } finally { setSaving(false) }
+  }
+
+  const del = async (handle: string) => {
+    const res = await fetch(`/api/products/${handle}`, { method: 'DELETE', headers })
+    if (res.ok) { flash('Product deleted.'); load(); setDeleteConfirm(null) }
+    else flash('Error deleting product.')
+  }
+
+  const f = (key: keyof typeof form, val: string | number | string[]) =>
+    setForm(prev => ({ ...prev, [key]: val }))
+
+  if (!authed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="card p-8 w-full max-w-sm">
+          <div className="text-center mb-8">
+            <Lock size={32} className="mx-auto mb-4" style={{ color: 'var(--gold)' }} />
+            <h1 className="font-serif text-2xl font-medium" style={{ color: 'var(--text)' }}>Admin Access</h1>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-2)' }}>Enter your admin password to continue.</p>
+          </div>
+          <form onSubmit={login} className="space-y-4">
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                className="input pr-10"
+                placeholder="Admin password"
+                value={password}
+                onChange={e => { setPassword(e.target.value); setAuthErr('') }}
+                required
+              />
+              <button type="button" onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-2)' }}>
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {authErr && <p className="text-red-500 text-xs">{authErr}</p>}
+            <button type="submit" className="btn-gold w-full justify-center">Login</button>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="font-serif text-3xl font-medium" style={{ color: 'var(--text)' }}>Product Manager</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{products.length} products</p>
+        </div>
+        <button onClick={startCreate} className="btn-gold">
+          <Plus size={16} /> Add Product
+        </button>
+      </div>
+
+      {msg && (
+        <div className="mb-6 px-4 py-3 text-sm font-medium border-l-4 border-gold-500" style={{ backgroundColor: 'var(--bg-2)', color: 'var(--text)' }}>
+          {msg}
+        </div>
+      )}
+
+      {/* Form (create/edit) */}
+      {(creating || editing) && (
+        <div className="card p-6 mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-serif text-xl font-medium" style={{ color: 'var(--text)' }}>
+              {creating ? 'New Product' : `Edit: ${editing?.title}`}
+            </h2>
+            <button onClick={cancel} style={{ color: 'var(--text-2)' }}><X size={20} /></button>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div>
+              <label className="label">Title *</label>
+              <input className="input" value={form.title} onChange={e => f('title', e.target.value)} placeholder="Golden Ganesha" />
+            </div>
+            <div>
+              <label className="label">Handle * (URL slug)</label>
+              <input className="input" value={form.handle} onChange={e => f('handle', e.target.value.toLowerCase().replace(/\s+/g, '-'))} placeholder="golden-ganesha" />
+            </div>
+            <div>
+              <label className="label">SKU</label>
+              <input className="input" value={form.sku} onChange={e => f('sku', e.target.value)} placeholder="PL-001" />
+            </div>
+            <div>
+              <label className="label">Type</label>
+              <input className="input" value={form.type} onChange={e => f('type', e.target.value)} placeholder="Sculpture" />
+            </div>
+            <div>
+              <label className="label">Price (₹) *</label>
+              <input className="input" type="number" value={form.price} onChange={e => f('price', parseFloat(e.target.value))} />
+            </div>
+            <div>
+              <label className="label">Compare At Price (₹)</label>
+              <input className="input" type="number" value={form.compareAtPrice} onChange={e => f('compareAtPrice', parseFloat(e.target.value))} />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="label">Image URL or /images/products/filename.jpg</label>
+              <input className="input" value={form.image} onChange={e => f('image', e.target.value)} placeholder="/images/products/golden-ganesha.jpeg" />
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className="label">Description (HTML)</label>
+              <textarea className="input resize-none" rows={4} value={form.description} onChange={e => f('description', e.target.value)} />
+            </div>
+            <div>
+              <label className="label">Tags (comma separated)</label>
+              <input className="input" value={Array.isArray(form.tags) ? form.tags.join(', ') : ''} onChange={e => f('tags', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} placeholder="sculpture, gold, luxury" />
+            </div>
+            <div>
+              <label className="label">Status</label>
+              <select className="input" value={form.status} onChange={e => f('status', e.target.value as 'active' | 'draft')}>
+                <option value="active">Active</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Amazon URL</label>
+              <input className="input" value={form.amazonUrl || ''} onChange={e => f('amazonUrl', e.target.value)} placeholder="https://amazon.in/..." />
+            </div>
+            <div>
+              <label className="label">Flipkart URL</label>
+              <input className="input" value={form.flipkartUrl || ''} onChange={e => f('flipkartUrl', e.target.value)} placeholder="https://flipkart.com/..." />
+            </div>
+            <div>
+              <label className="label">Meesho URL</label>
+              <input className="input" value={form.meeshoUrl || ''} onChange={e => f('meeshoUrl', e.target.value)} placeholder="https://meesho.com/..." />
+            </div>
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button onClick={save} disabled={saving} className="btn-gold">
+              <Check size={16} /> {saving ? 'Saving...' : 'Save Product'}
+            </button>
+            <button onClick={cancel} className="btn-outline">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Products table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="border-b text-left text-xs uppercase tracking-widest" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>
+              <th className="py-3 pr-4 font-medium w-16">Image</th>
+              <th className="py-3 pr-4 font-medium">Product</th>
+              <th className="py-3 pr-4 font-medium">Price</th>
+              <th className="py-3 pr-4 font-medium">SKU</th>
+              <th className="py-3 pr-4 font-medium">Status</th>
+              <th className="py-3 font-medium text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
+            {products.map(p => (
+              <tr key={p.handle} className="hover:opacity-80 transition-opacity" style={{ borderColor: 'var(--border)' }}>
+                <td className="py-3 pr-4">
+                  <div className="relative w-12 h-12 overflow-hidden" style={{ backgroundColor: 'var(--bg-2)' }}>
+                    {p.image && <Image src={p.image} alt={p.title} fill className="object-cover" />}
+                  </div>
+                </td>
+                <td className="py-3 pr-4">
+                  <p className="font-medium font-serif" style={{ color: 'var(--text)' }}>{p.title}</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-2)' }}>{p.handle}</p>
+                </td>
+                <td className="py-3 pr-4" style={{ color: 'var(--text)' }}>
+                  ₹{p.price.toLocaleString('en-IN')}
+                  {p.compareAtPrice > p.price && (
+                    <span className="line-through text-xs ml-2" style={{ color: 'var(--text-2)' }}>
+                      ₹{p.compareAtPrice.toLocaleString('en-IN')}
+                    </span>
+                  )}
+                </td>
+                <td className="py-3 pr-4 font-mono text-xs" style={{ color: 'var(--text-2)' }}>{p.sku}</td>
+                <td className="py-3 pr-4">
+                  <span className={`text-xs px-2 py-0.5 font-medium ${p.status === 'active' ? 'text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-900/30' : 'text-yellow-700 bg-yellow-100 dark:text-yellow-300 dark:bg-yellow-900/30'}`}>
+                    {p.status}
+                  </span>
+                </td>
+                <td className="py-3">
+                  <div className="flex items-center justify-end gap-2">
+                    <button onClick={() => startEdit(p)} className="p-1.5 hover:text-gold-500 transition-colors" style={{ color: 'var(--text-2)' }}>
+                      <Pencil size={15} />
+                    </button>
+                    {deleteConfirm === p.handle ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => del(p.handle)} className="text-xs px-2 py-1 bg-red-500 text-white hover:bg-red-600">Confirm</button>
+                        <button onClick={() => setDeleteConfirm(null)} className="text-xs px-2 py-1 border" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>Cancel</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setDeleteConfirm(p.handle)} className="p-1.5 hover:text-red-500 transition-colors" style={{ color: 'var(--text-2)' }}>
+                        <Trash2 size={15} />
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}

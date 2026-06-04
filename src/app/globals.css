@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #FAF7F0;
+    --bg-2: #F4EDD8;
+    --text: #2C1810;
+    --text-2: #6B5744;
+    --gold: #C4962A;
+    --border: #E8D9BE;
+  }
+  .dark {
+    --bg: #120E0A;
+    --bg-2: #1A1410;
+    --text: #F5EDD6;
+    --text-2: #C4A882;
+    --gold: #D4A843;
+    --border: #2E2418;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply font-sans;
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  h1, h2, h3, h4 { @apply font-serif; }
+}
+
+@layer components {
+  .btn-gold {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-medium rounded-none transition-all duration-200 tracking-wide text-sm uppercase;
+  }
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-6 py-3 border border-gold-500 text-gold-600 dark:text-gold-400 hover:bg-gold-500 hover:text-white font-medium rounded-none transition-all duration-200 tracking-wide text-sm uppercase;
+  }
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl font-medium text-bark-600 dark:text-cream-200 mb-3;
+  }
+  .section-subtitle {
+    @apply text-bark-400 dark:text-bark-200 text-base mb-10 max-w-xl;
+  }
+  .card {
+    background-color: var(--bg-2);
+    border: 1px solid var(--border);
+    @apply transition-all duration-300;
+  }
+  .divider {
+    @apply w-16 h-0.5 bg-gold-500 mb-6;
+  }
+  .price-badge {
+    @apply font-serif text-xl font-semibold text-bark-600 dark:text-cream-200;
+  }
+  .compare-price {
+    @apply text-sm line-through text-bark-300 dark:text-bark-200 ml-2;
+  }
+  .tag {
+    @apply text-xs px-2 py-0.5 border border-gold-400 text-gold-600 dark:text-gold-300 dark:border-gold-600 capitalize;
+  }
+  .input {
+    @apply w-full px-4 py-3 border text-sm font-sans outline-none focus:ring-1 focus:ring-gold-500 transition-all;
+    background-color: var(--bg);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .label {
+    @apply block text-xs font-medium uppercase tracking-widest mb-2;
+    color: var(--text-2);
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* Product image hover */
+.product-img-wrap { overflow: hidden; }
+.product-img-wrap img { transition: transform 0.5s ease; }
+.product-img-wrap:hover img { transform: scale(1.06); }
