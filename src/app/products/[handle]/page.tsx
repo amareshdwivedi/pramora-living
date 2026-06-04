@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, ShoppingCart, MessageCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { getProduct, getProducts } from '@/lib/products'
+import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/BrandIcons'
 
 export async function generateStaticParams() {
   return getProducts().map(p => ({ handle: p.handle }))
@@ -15,14 +16,14 @@ export default function ProductPage({ params }: { params: { handle: string } }) 
   const discount = Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
 
   const shopLinks = [
-    { label: 'Buy on Amazon', href: product.amazonUrl || 'https://amazon.in', color: '#FF9900', emoji: '🛒' },
-    { label: 'Buy on Flipkart', href: product.flipkartUrl || 'https://flipkart.com', color: '#2874F0', emoji: '🛍' },
-    { label: 'Buy on Meesho', href: product.meeshoUrl || 'https://meesho.com', color: '#9B2D8E', emoji: '🎀' },
+    { label: 'Buy on Amazon',    href: product.amazonUrl   || 'https://amazon.in',    color: '#FF9900', Icon: FaAmazon },
+    { label: 'Buy on Flipkart',  href: product.flipkartUrl || 'https://flipkart.com', color: '#2874F0', Icon: SiFlipkart },
+    { label: 'Buy on Meesho',    href: product.meeshoUrl   || 'https://meesho.com',   color: '#9B2D8E', Icon: MeeshoIcon },
     {
       label: 'Order on WhatsApp',
       href: `https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20${encodeURIComponent(product.title)}%20(₹${product.price})`,
       color: '#25D366',
-      emoji: '💬'
+      Icon: FaWhatsapp,
     },
   ]
 
@@ -113,7 +114,7 @@ export default function ProductPage({ params }: { params: { handle: string } }) 
                 className="flex items-center gap-3 px-4 py-3 border-2 font-semibold text-sm transition-all hover:scale-[1.02] duration-200"
                 style={{ borderColor: l.color, color: l.color }}
               >
-                <span>{l.emoji}</span>
+                <l.Icon size={16} />
                 {l.label}
               </a>
             ))}

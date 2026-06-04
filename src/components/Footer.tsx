@@ -1,18 +1,18 @@
 import Link from 'next/link'
-import { Instagram, Facebook, Twitter, MessageCircle } from 'lucide-react'
+import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter, SiFlipkart, MeeshoIcon } from './BrandIcons'
 
 const SOCIAL = [
-  { label: 'Instagram', href: 'https://instagram.com/pramoraliving', icon: Instagram },
-  { label: 'Facebook',  href: 'https://facebook.com/pramoraliving', icon: Facebook },
-  { label: 'Twitter',   href: 'https://twitter.com/pramoraliving', icon: Twitter },
-  { label: 'WhatsApp',  href: 'https://wa.me/919880009575', icon: MessageCircle },
+  { label: 'Instagram', href: 'https://instagram.com/pramoraliving', Icon: FaInstagram },
+  { label: 'Facebook',  href: 'https://facebook.com/pramoraliving',  Icon: FaFacebook },
+  { label: 'Twitter',   href: 'https://twitter.com/pramoraliving',   Icon: FaTwitter },
+  { label: 'WhatsApp',  href: 'https://wa.me/919880009575',          Icon: FaWhatsapp },
 ]
 
-const SHOP_LINKS = [
-  { label: 'Shop on Amazon',   href: 'https://amazon.in', color: '#FF9900' },
-  { label: 'Shop on Flipkart', href: 'https://flipkart.com', color: '#2874F0' },
-  { label: 'Shop on Meesho',   href: 'https://meesho.com', color: '#9B2D8E' },
-  { label: 'WhatsApp Store',   href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366' },
+const SHOP = [
+  { label: 'Amazon',         href: 'https://amazon.in',      color: '#FF9900', Icon: FaAmazon },
+  { label: 'Flipkart',       href: 'https://flipkart.com',   color: '#2874F0', Icon: SiFlipkart },
+  { label: 'Meesho',         href: 'https://meesho.com',     color: '#9B2D8E', Icon: MeeshoIcon },
+  { label: 'WhatsApp Store', href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366', Icon: FaWhatsapp },
 ]
 
 export function Footer() {
@@ -51,16 +51,16 @@ export function Footer() {
         <div>
           <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Buy Online</h4>
           <ul className="space-y-3">
-            {SHOP_LINKS.map(l => (
+            {SHOP.map(l => (
               <li key={l.label}>
                 <a
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm flex items-center gap-2 hover:opacity-80 transition-opacity font-medium"
+                  className="text-sm flex items-center gap-2.5 hover:opacity-80 transition-opacity font-medium"
                   style={{ color: l.color }}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: l.color }} />
+                  <l.Icon size={15} />
                   {l.label}
                 </a>
               </li>
@@ -68,10 +68,10 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* Social */}
+        {/* Social + Contact */}
         <div>
           <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Follow Us</h4>
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex gap-3 mb-6">
             {SOCIAL.map(s => (
               <a
                 key={s.label}
@@ -82,7 +82,7 @@ export function Footer() {
                 className="w-9 h-9 flex items-center justify-center border rounded-full transition-all hover:border-gold-500 hover:text-gold-500"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
               >
-                <s.icon size={16} />
+                <s.Icon size={15} />
               </a>
             ))}
           </div>

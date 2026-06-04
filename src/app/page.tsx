@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, Star, Truck, Shield, Package } from 'lucide-react'
 import { getProducts } from '@/lib/products'
 import { ProductCard } from '@/components/ProductCard'
+import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/BrandIcons'
 
 export default function HomePage() {
   const products = getProducts().filter(p => p.status === 'active')
@@ -129,19 +130,20 @@ export default function HomePage() {
         <div className="divider mx-auto" />
         <div className="flex flex-wrap justify-center gap-4 mt-8">
           {[
-            { label: '🛒 Amazon', href: 'https://amazon.in', color: '#FF9900' },
-            { label: '🛍 Flipkart', href: 'https://flipkart.com', color: '#2874F0' },
-            { label: '🎀 Meesho', href: 'https://meesho.com', color: '#9B2D8E' },
-            { label: '💬 WhatsApp Store', href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366' },
+            { label: 'Amazon',         href: 'https://amazon.in',      color: '#FF9900', Icon: FaAmazon },
+            { label: 'Flipkart',       href: 'https://flipkart.com',   color: '#2874F0', Icon: SiFlipkart },
+            { label: 'Meesho',         href: 'https://meesho.com',     color: '#9B2D8E', Icon: MeeshoIcon },
+            { label: 'WhatsApp Store', href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366', Icon: FaWhatsapp },
           ].map(s => (
             <a
               key={s.label}
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 border-2 font-semibold text-sm transition-all hover:scale-105 duration-200"
+              className="inline-flex items-center gap-2.5 px-8 py-4 border-2 font-semibold text-sm transition-all hover:scale-105 duration-200"
               style={{ borderColor: s.color, color: s.color }}
             >
+              <s.Icon size={16} />
               {s.label}
             </a>
           ))}
