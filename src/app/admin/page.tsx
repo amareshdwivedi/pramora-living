@@ -39,7 +39,9 @@ export default function AdminPage() {
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault()
-    const res = await fetch('/api/products', { headers: { 'x-admin-password': password } })
+    // Validate against an endpoint that actually checks the password, so a
+    // successful login guarantees the same credential works for edits/sync.
+    const res = await fetch('/api/admin/auth', { method: 'POST', headers: { 'x-admin-password': password } })
     if (res.ok) { setAuthed(true); load() }
     else setAuthErr('Incorrect password. Try again.')
   }
