@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
-import { MapPin, Phone, Mail, MessageCircle, Send } from 'lucide-react'
+import { MapPin, Phone, Mail, MessageCircle } from 'lucide-react'
+import { FaWhatsapp } from '@/components/BrandIcons'
 import { whatsappUrl, PHONE_DISPLAY } from '@/lib/contact'
 
 export default function ContactPage() {
@@ -62,9 +63,9 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-12">
+      <div className="grid lg:grid-cols-5 gap-12">
         {/* Info */}
-        <div>
+        <div className="lg:col-span-2">
           <h2 className="font-serif text-2xl font-medium mb-8" style={{ color: 'var(--text)' }}>Let's Connect</h2>
           <div className="space-y-6">
             {[
@@ -97,7 +98,7 @@ export default function ContactPage() {
         </div>
 
         {/* Form */}
-        <div className="card p-8">
+        <div className="card p-8 lg:col-span-3">
           {sent ? (
             <div className="text-center py-10">
               <div className="text-4xl mb-4">✓</div>
@@ -142,10 +143,10 @@ export default function ContactPage() {
               </div>
               {err && <p className="text-red-500 text-sm">{err}</p>}
               <div className="grid sm:grid-cols-2 gap-3">
-                <button type="submit" className="btn-gold w-full justify-center">
-                  <Send size={16} /> Send via WhatsApp
+                <button type="submit" className="btn-gold w-full justify-center whitespace-nowrap">
+                  <FaWhatsapp size={16} /> Send via WhatsApp
                 </button>
-                <button type="button" onClick={sendEmail} disabled={sending} className="btn-outline w-full justify-center">
+                <button type="button" onClick={sendEmail} disabled={sending} className="btn-outline w-full justify-center whitespace-nowrap">
                   <Mail size={16} /> {sending ? 'Sending…' : 'Send via Email'}
                 </button>
               </div>
