@@ -1,13 +1,30 @@
 import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa'
-import { SiFlipkart } from 'react-icons/si'
 
-export { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter, SiFlipkart }
+export { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter }
 
-// Meesho SVG (not in any icon library)
-export function MeeshoIcon({ size = 16 }: { size?: number }) {
+// "Available at Amazon" badge — official-style brand asset for linking to a listing.
+export function AmazonBadge({ height = 48 }: { height?: number }) {
+  const width = (height * 168) / 48
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1.5 14V8.5L7 14V8h1.5v5.5L12 8l3.5 5.5V8H17v8h-1.5L12 10.5 10.5 16H10.5z"/>
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 168 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Available at Amazon"
+    >
+      <rect width="168" height="48" rx="6" fill="#131921" />
+      <text x="16" y="19" fill="#FFFFFF" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" letterSpacing="0.2">
+        Available at
+      </text>
+      <text x="14" y="39" fill="#FFFFFF" fontFamily="Arial, Helvetica, sans-serif" fontSize="23" fontWeight="700" letterSpacing="-1">
+        amazon
+      </text>
+      {/* orange smile arrow from under the 'a' curving up to the 'z' */}
+      <path d="M19 41 C 46 50, 86 50, 112 40" stroke="#FF9900" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <path d="M112 40 l -7 0.5 l 4.5 -4.5 z" fill="#FF9900" />
     </svg>
   )
 }

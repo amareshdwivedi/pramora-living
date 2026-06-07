@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { MapPin, Phone, Mail, MessageCircle, Send } from 'lucide-react'
+import { whatsappUrl, PHONE_DISPLAY } from '@/lib/contact'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
@@ -8,9 +9,9 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const wa = `https://wa.me/919880009575?text=${encodeURIComponent(
+    const wa = whatsappUrl(
       `Name: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nSubject: ${form.subject}\nMessage: ${form.message}`
-    )}`
+    )
     window.open(wa, '_blank')
     setSent(true)
     setForm({ name: '', email: '', phone: '', subject: '', message: '' })
@@ -34,7 +35,7 @@ export default function ContactPage() {
           <div className="space-y-6">
             {[
               { icon: MapPin, label: 'Address', value: 'Brigade Cornerstone Utopia, Gunjur Village\nVarthur, Bengaluru — 560087' },
-              { icon: Phone, label: 'Phone', value: '+91 98800 09575' },
+              { icon: Phone, label: 'Phone', value: PHONE_DISPLAY },
               { icon: Mail, label: 'Email', value: 'hello@pramoraliving.com' },
               { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us directly' },
             ].map(item => (
@@ -52,7 +53,7 @@ export default function ContactPage() {
 
           {/* WhatsApp CTA */}
           <a
-            href="https://wa.me/919880009575?text=Hi%2C%20I%20have%20an%20enquiry%20about%20Pramora%20Living"
+            href={whatsappUrl('Hi, I have an enquiry about Pramora Living')}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-gold mt-10 inline-flex"

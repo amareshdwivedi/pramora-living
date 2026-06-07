@@ -1,18 +1,17 @@
 import Link from 'next/link'
-import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter, SiFlipkart, MeeshoIcon } from './BrandIcons'
+import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from './BrandIcons'
+import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY } from '@/lib/contact'
 
 const SOCIAL = [
   { label: 'Instagram', href: 'https://instagram.com/pramoraliving', Icon: FaInstagram },
   { label: 'Facebook',  href: 'https://facebook.com/pramoraliving',  Icon: FaFacebook },
   { label: 'Twitter',   href: 'https://twitter.com/pramoraliving',   Icon: FaTwitter },
-  { label: 'WhatsApp',  href: 'https://wa.me/919880009575',          Icon: FaWhatsapp },
+  { label: 'WhatsApp',  href: `https://wa.me/${WHATSAPP_NUMBER}`,     Icon: FaWhatsapp },
 ]
 
 const SHOP = [
   { label: 'Amazon',         href: 'https://amazon.in',      color: '#FF9900', Icon: FaAmazon },
-  { label: 'Flipkart',       href: 'https://flipkart.com',   color: '#2874F0', Icon: SiFlipkart },
-  { label: 'Meesho',         href: 'https://meesho.com',     color: '#9B2D8E', Icon: MeeshoIcon },
-  { label: 'WhatsApp Store', href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366', Icon: FaWhatsapp },
+  { label: 'WhatsApp Store', href: whatsappUrl('Hi Pramora Living, I need help with your products.'), color: '#25D366', Icon: FaWhatsapp },
 ]
 
 export function Footer() {
@@ -88,7 +87,7 @@ export function Footer() {
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>
             📍 Bengaluru, Karnataka, India<br />
-            📞 +91 98800 09575<br />
+            📞 {PHONE_DISPLAY}<br />
             ✉ hello@pramoraliving.com
           </p>
         </div>

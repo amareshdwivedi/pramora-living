@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { ArrowRight, Star, Truck, Shield, Package } from 'lucide-react'
 import { getProducts } from '@/lib/products'
 import { ProductCard } from '@/components/ProductCard'
-import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/BrandIcons'
+import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
+import { whatsappUrl } from '@/lib/contact'
 
 export default async function HomePage() {
   const products = (await getProducts()).filter(p => p.status === 'active')
@@ -131,9 +132,7 @@ export default async function HomePage() {
         <div className="flex flex-wrap justify-center gap-4 mt-8">
           {[
             { label: 'Amazon',         href: 'https://amazon.in',      color: '#FF9900', Icon: FaAmazon },
-            { label: 'Flipkart',       href: 'https://flipkart.com',   color: '#2874F0', Icon: SiFlipkart },
-            { label: 'Meesho',         href: 'https://meesho.com',     color: '#9B2D8E', Icon: MeeshoIcon },
-            { label: 'WhatsApp Store', href: 'https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20from%20Pramora%20Living', color: '#25D366', Icon: FaWhatsapp },
+            { label: 'WhatsApp Store', href: whatsappUrl('Hi Pramora Living, I need help with your products.'), color: '#25D366', Icon: FaWhatsapp },
           ].map(s => (
             <a
               key={s.label}

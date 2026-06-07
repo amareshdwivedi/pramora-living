@@ -7,7 +7,7 @@ import type { Product } from '@/lib/types'
 const EMPTY: Omit<Product, 'id'> = {
   handle: '', title: '', description: '', type: 'Sculpture',
   tags: [], price: 0, compareAtPrice: 0, sku: '', image: '',
-  status: 'active', amazonUrl: '', flipkartUrl: '', meeshoUrl: '',
+  status: 'active', amazonUrl: '',
 }
 
 type FieldChange = { field: 'price' | 'inventory' | 'status' | 'title'; before: string | null; after: string | null }
@@ -268,14 +268,6 @@ export default function AdminPage() {
             <div>
               <label className="label">Amazon URL</label>
               <input className="input" value={form.amazonUrl || ''} onChange={e => f('amazonUrl', e.target.value)} placeholder="https://amazon.in/..." />
-            </div>
-            <div>
-              <label className="label">Flipkart URL</label>
-              <input className="input" value={form.flipkartUrl || ''} onChange={e => f('flipkartUrl', e.target.value)} placeholder="https://flipkart.com/..." />
-            </div>
-            <div>
-              <label className="label">Meesho URL</label>
-              <input className="input" value={form.meeshoUrl || ''} onChange={e => f('meeshoUrl', e.target.value)} placeholder="https://meesho.com/..." />
             </div>
           </div>
           <div className="flex gap-3 mt-6">

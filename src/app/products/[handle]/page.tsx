@@ -3,7 +3,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getProduct, getProducts } from '@/lib/products'
-import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/BrandIcons'
+import { FaWhatsapp, AmazonBadge } from '@/components/BrandIcons'
+import { amazonProductUrl } from '@/lib/amazon/url'
+import { whatsappUrl, SITE_URL } from '@/lib/contact'
 
 // Render product pages on demand and keep them fresh; new items created by an
 // Amazon sync are served without a rebuild.
@@ -19,18 +21,10 @@ export default async function ProductPage({ params }: { params: { handle: string
   if (!product) notFound()
 
   const discount = Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-
-  const shopLinks = [
-    { label: 'Buy on Amazon',    href: product.amazonUrl   || 'https://amazon.in',    color: '#FF9900', Icon: FaAmazon },
-    { label: 'Buy on Flipkart',  href: product.flipkartUrl || 'https://flipkart.com', color: '#2874F0', Icon: SiFlipkart },
-    { label: 'Buy on Meesho',    href: product.meeshoUrl   || 'https://meesho.com',   color: '#9B2D8E', Icon: MeeshoIcon },
-    {
-      label: 'Order on WhatsApp',
-      href: `https://wa.me/919880009575?text=Hi%2C%20I%20want%20to%20order%20${encodeURIComponent(product.title)}%20(₹${product.price})`,
-      color: '#25D366',
-      Icon: FaWhatsapp,
-    },
-  ]
+  const amazonUrl = amazonProductUrl(product)
+  const whatsappHelpUrl = whatsappUrl(
+    `Hi Pramora Living I need help regarding the ${product.title} ${SITE_URL}/products/${product.handle}`,
+  )
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
@@ -82,6 +76,39 @@ export default async function ProductPage({ params }: { params: { handle: string
             )}
           </div>
 
+          {/* Primary CTAs — Buy on Amazon (deep-link to this listing) + WhatsApp help */}
+          <div className="flex flex-col items-start gap-3 mb-6">
+            {amazonUrl && (
+              <a
+                href={amazonUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Buy ${product.title} now on Amazon`}
+                className="group inline-flex items-center gap-4 rounded-lg pl-5 pr-4 py-3 transition-all hover:scale-[1.02] hover:shadow-lg"
+                style={{ backgroundColor: '#FF9900' }}
+              >
+                <span className="font-semibold text-sm" style={{ color: '#131921' }}>Buy Now on</span>
+                <AmazonBadge height={40} />
+              </a>
+            )}
+
+            <a
+              href={whatsappHelpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Chat on WhatsApp about ${product.title}`}
+              className="inline-flex items-center gap-3 rounded-lg px-5 py-3 font-semibold text-sm text-white transition-all hover:scale-[1.02] hover:shadow-lg"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              <FaWhatsapp size={22} />
+              Available on WhatsApp
+            </a>
+
+            <p className="text-xs" style={{ color: 'var(--text-2)' }}>
+              Checkout securely on Amazon, or chat with us on WhatsApp for help with this item.
+            </p>
+          </div>
+
           <div className="h-px mb-6" style={{ backgroundColor: 'var(--border)' }} />
 
           {/* Description */}
@@ -97,31 +124,9 @@ export default async function ProductPage({ params }: { params: { handle: string
           </p>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex flex-wrap gap-2">
             {product.tags.map(tag => (
               <span key={tag} className="tag">{tag}</span>
-            ))}
-          </div>
-
-          <div className="h-px mb-8" style={{ backgroundColor: 'var(--border)' }} />
-
-          {/* Shop Links */}
-          <p className="text-xs uppercase tracking-[0.2em] mb-4 font-medium" style={{ color: 'var(--text)' }}>
-            Purchase From
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {shopLinks.map(l => (
-              <a
-                key={l.label}
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 border-2 font-semibold text-sm transition-all hover:scale-[1.02] duration-200"
-                style={{ borderColor: l.color, color: l.color }}
-              >
-                <l.Icon size={16} />
-                {l.label}
-              </a>
             ))}
           </div>
         </div>
