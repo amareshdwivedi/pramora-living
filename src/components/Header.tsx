@@ -18,16 +18,16 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--border)' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-36 md:h-44 flex items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/" className="flex items-center" aria-label="Pramora Living — Home">
           <Image
             src="/pramora.living.logo.png"
             alt="Pramora Living — Home Decor & Kitchen Essentials"
-            width={56}
-            height={56}
+            width={699}
+            height={486}
             priority
-            className="h-12 w-auto md:h-14"
+            className="h-32 w-auto md:h-40"
           />
         </Link>
 
