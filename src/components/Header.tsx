@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
@@ -19,13 +20,15 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--border)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
         {/* Logo */}
-        <Link href="/" className="flex flex-col leading-none">
-          <span className="font-serif text-xl md:text-2xl font-semibold tracking-wide" style={{ color: 'var(--text)' }}>
-            Pramora Living
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--gold)' }}>
-            Artisan Home Décor
-          </span>
+        <Link href="/" className="flex items-center" aria-label="Pramora Living — Home">
+          <Image
+            src="/pramora.living.logo.png"
+            alt="Pramora Living — Home Decor & Kitchen Essentials"
+            width={56}
+            height={56}
+            priority
+            className="h-12 w-auto md:h-14"
+          />
         </Link>
 
         {/* Desktop nav */}

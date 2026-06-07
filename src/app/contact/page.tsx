@@ -36,7 +36,7 @@ export default function ContactPage() {
             {[
               { icon: MapPin, label: 'Address', value: 'Brigade Cornerstone Utopia, Gunjur Village\nVarthur, Bengaluru — 560087' },
               { icon: Phone, label: 'Phone', value: PHONE_DISPLAY },
-              { icon: Mail, label: 'Email', value: 'hello@pramoraliving.com' },
+              { icon: Mail, label: 'Email', value: 'pramoraliving@gmail.com' },
               { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us directly' },
             ].map(item => (
               <div key={item.label} className="flex gap-4">

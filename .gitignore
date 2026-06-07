@@ -20,3 +20,6 @@ dist/
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Root logo source (canonical copy lives in public/)
+/pramora.living.logo.png

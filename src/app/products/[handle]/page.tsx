@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getProduct, getProducts } from '@/lib/products'
-import { FaWhatsapp, AmazonBadge } from '@/components/BrandIcons'
+import { FaWhatsapp } from '@/components/BrandIcons'
 import { amazonProductUrl } from '@/lib/amazon/url'
 import { whatsappUrl, SITE_URL } from '@/lib/contact'
 
@@ -76,39 +76,6 @@ export default async function ProductPage({ params }: { params: { handle: string
             )}
           </div>
 
-          {/* Primary CTAs — Buy on Amazon (deep-link to this listing) + WhatsApp help */}
-          <div className="flex flex-col items-start gap-3 mb-6">
-            {amazonUrl && (
-              <a
-                href={amazonUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Buy ${product.title} now on Amazon`}
-                className="group inline-flex items-center gap-4 rounded-lg pl-5 pr-4 py-3 transition-all hover:scale-[1.02] hover:shadow-lg"
-                style={{ backgroundColor: '#FF9900' }}
-              >
-                <span className="font-semibold text-sm" style={{ color: '#131921' }}>Buy Now on</span>
-                <AmazonBadge height={40} />
-              </a>
-            )}
-
-            <a
-              href={whatsappHelpUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Chat on WhatsApp about ${product.title}`}
-              className="inline-flex items-center gap-3 rounded-lg px-5 py-3 font-semibold text-sm text-white transition-all hover:scale-[1.02] hover:shadow-lg"
-              style={{ backgroundColor: '#25D366' }}
-            >
-              <FaWhatsapp size={22} />
-              Available on WhatsApp
-            </a>
-
-            <p className="text-xs" style={{ color: 'var(--text-2)' }}>
-              Checkout securely on Amazon, or chat with us on WhatsApp for help with this item.
-            </p>
-          </div>
-
           <div className="h-px mb-6" style={{ backgroundColor: 'var(--border)' }} />
 
           {/* Description */}
@@ -128,6 +95,34 @@ export default async function ProductPage({ params }: { params: { handle: string
             {product.tags.map(tag => (
               <span key={tag} className="tag">{tag}</span>
             ))}
+          </div>
+
+          {/* Primary CTAs — Available on Amazon (deep-link) + WhatsApp help */}
+          <div className="flex flex-wrap items-center gap-3 mt-8">
+            {amazonUrl && (
+              <a
+                href={amazonUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View ${product.title} on Amazon`}
+                className="inline-flex items-center rounded-lg px-5 py-3 font-semibold text-sm transition-all hover:scale-[1.02] hover:shadow-lg"
+                style={{ backgroundColor: '#FF9900', color: '#131921' }}
+              >
+                Available on Amazon
+              </a>
+            )}
+
+            <a
+              href={whatsappHelpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Chat on WhatsApp about ${product.title}`}
+              className="inline-flex items-center gap-3 rounded-lg px-5 py-3 font-semibold text-sm text-white transition-all hover:scale-[1.02] hover:shadow-lg"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              <FaWhatsapp size={22} />
+              Available on WhatsApp
+            </a>
           </div>
         </div>
       </div>

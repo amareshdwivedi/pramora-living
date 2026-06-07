@@ -88,7 +88,7 @@ export function Footer() {
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>
             📍 Bengaluru, Karnataka, India<br />
             📞 {PHONE_DISPLAY}<br />
-            ✉ hello@pramoraliving.com
+            ✉ pramoraliving@gmail.com
           </p>
         </div>
       </div>
