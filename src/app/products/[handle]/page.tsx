@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getProduct, getProducts } from '@/lib/products'
-import { FaWhatsapp } from '@/components/BrandIcons'
+import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
 import { amazonProductUrl } from '@/lib/amazon/url'
 import { whatsappUrl, SITE_URL } from '@/lib/contact'
 
@@ -105,9 +105,10 @@ export default async function ProductPage({ params }: { params: { handle: string
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`View ${product.title} on Amazon`}
-                className="inline-flex items-center rounded-lg px-5 py-3 font-semibold text-sm transition-all hover:scale-[1.02] hover:shadow-lg"
+                className="inline-flex items-center gap-3 rounded-lg px-5 py-3 font-semibold text-sm transition-all hover:scale-[1.02] hover:shadow-lg"
                 style={{ backgroundColor: '#FF9900', color: '#131921' }}
               >
+                <FaAmazon size={22} />
                 Available on Amazon
               </a>
             )}
