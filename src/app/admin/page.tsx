@@ -1,7 +1,7 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import type { Product } from '@/lib/types'
 
 const EMPTY: Omit<Product, 'id'> = {
@@ -9,6 +9,10 @@ const EMPTY: Omit<Product, 'id'> = {
   tags: [], price: 0, compareAtPrice: 0, sku: '', image: '',
   status: 'active', amazonUrl: '', flipkartUrl: '', meeshoUrl: '',
 }
+
+type FieldChange = { field: 'price' | 'inventory' | 'status' | 'title'; before: string | null; after: string | null }
+type SyncChange = { amazonSku: string; asin: string | null; handle: string; title: string; kind: 'created' | 'updated' | 'unchanged'; fields: FieldChange[] }
+type SyncReport = { runId: string; source: string; itemsCreated: number; itemsUpdated: number; itemsUnchanged: number; changes: SyncChange[] }
 
 export default function AdminPage() {
   const [password, setPassword] = useState('')
@@ -22,6 +26,9 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [report, setReport] = useState<SyncReport | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const headers = { 'Content-Type': 'application/json', 'x-admin-password': password }
 
@@ -42,6 +49,33 @@ export default function AdminPage() {
   const startEdit = (p: Product) => { setEditing(p); setForm({ ...p }); setCreating(false) }
   const startCreate = () => { setCreating(true); setEditing(null); setForm({ ...EMPTY }) }
   const cancel = () => { setEditing(null); setCreating(false) }
+
+  const syncAmazon = async (file: File) => {
+    setSyncing(true); setReport(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      // Note: no Content-Type header — the browser sets the multipart boundary.
+      const res = await fetch('/api/admin/sync/amazon', {
+        method: 'POST',
+        headers: { 'x-admin-password': password },
+        body: fd,
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setReport(data)
+        await load()
+        flash(`Sync complete: ${data.itemsCreated} new, ${data.itemsUpdated} updated, ${data.itemsUnchanged} unchanged.`)
+      } else {
+        flash(data.error || 'Sync failed.')
+      }
+    } catch {
+      flash('Sync failed — could not reach the server.')
+    } finally {
+      setSyncing(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
 
   const save = async () => {
     setSaving(true)
@@ -107,14 +141,72 @@ export default function AdminPage() {
           <h1 className="font-serif text-3xl font-medium" style={{ color: 'var(--text)' }}>Product Manager</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{products.length} products</p>
         </div>
-        <button onClick={startCreate} className="btn-gold">
-          <Plus size={16} /> Add Product
-        </button>
+        <div className="flex gap-3">
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={e => { const file = e.target.files?.[0]; if (file) syncAmazon(file) }}
+          />
+          <button onClick={() => fileRef.current?.click()} disabled={syncing} className="btn-outline">
+            <RefreshCw size={16} className={syncing ? 'animate-spin' : ''} />
+            {syncing ? 'Syncing…' : 'Sync from Amazon'}
+          </button>
+          <button onClick={startCreate} className="btn-gold">
+            <Plus size={16} /> Add Product
+          </button>
+        </div>
       </div>
 
       {msg && (
         <div className="mb-6 px-4 py-3 text-sm font-medium border-l-4 border-gold-500" style={{ backgroundColor: 'var(--bg-2)', color: 'var(--text)' }}>
           {msg}
+        </div>
+      )}
+
+      {/* Amazon sync report */}
+      {report && (
+        <div className="card p-6 mb-10">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-serif text-xl font-medium" style={{ color: 'var(--text)' }}>Amazon Sync Results</h2>
+            <button onClick={() => setReport(null)} style={{ color: 'var(--text-2)' }}><X size={20} /></button>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-6 text-sm">
+            <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">🆕 {report.itemsCreated} new</span>
+            <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">✏️ {report.itemsUpdated} updated</span>
+            <span className="px-3 py-1 rounded-full" style={{ backgroundColor: 'var(--bg-2)', color: 'var(--text-2)' }}>✅ {report.itemsUnchanged} unchanged</span>
+          </div>
+
+          {report.itemsCreated + report.itemsUpdated === 0 ? (
+            <p className="text-sm" style={{ color: 'var(--text-2)' }}>Everything is already in sync with Amazon. Nothing changed.</p>
+          ) : (
+            <div className="space-y-3">
+              {report.changes.filter(c => c.kind !== 'unchanged').map(c => (
+                <div key={c.amazonSku} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+                  <div className="min-w-0 sm:flex-1">
+                    <p className="font-medium text-sm truncate" style={{ color: 'var(--text)' }}>{c.title}</p>
+                    <p className="text-xs font-mono mt-0.5" style={{ color: 'var(--text-2)' }}>{c.amazonSku}{c.asin ? ` · ${c.asin}` : ''}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {c.kind === 'created' ? (
+                      <span className="px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">🆕 Created as draft</span>
+                    ) : (
+                      c.fields.map(f => (
+                        <span key={f.field} className="px-2 py-1 rounded" style={{ backgroundColor: 'var(--bg-2)', color: 'var(--text)' }}>
+                          {f.field === 'price' && <>💰 ₹{f.before ?? '—'} → <strong>₹{f.after ?? '—'}</strong></>}
+                          {f.field === 'inventory' && <>📦 {f.before ?? '—'} → <strong>{f.after ?? '—'}</strong></>}
+                          {f.field === 'status' && <>🔴 {f.before ?? '—'} → <strong>{f.after ?? '—'}</strong></>}
+                          {f.field === 'title' && <>✏️ Amazon title updated</>}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

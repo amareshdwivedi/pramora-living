@@ -64,13 +64,18 @@ export type ProductRow = typeof products.$inferSelect
 export type NewProductRow = typeof products.$inferInsert
 export type SyncRunRow = typeof syncRuns.$inferSelect
 
-/** A single field change recorded during a sync (before → after). */
+/** What changed for one item during a sync. */
+export interface FieldChange {
+  field: 'price' | 'inventory' | 'status' | 'title'
+  before: string | null
+  after: string | null
+}
+
 export interface SyncChange {
   amazonSku: string
   asin: string | null
+  handle: string
   title: string
-  kind: 'created' | 'price' | 'inventory' | 'status' | 'unchanged'
-  field?: string
-  before?: string | null
-  after?: string | null
+  kind: 'created' | 'updated' | 'unchanged'
+  fields: FieldChange[]
 }
