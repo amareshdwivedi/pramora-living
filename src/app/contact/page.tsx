@@ -1,20 +1,54 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { MapPin, Phone, Mail, MessageCircle, Send } from 'lucide-react'
 import { whatsappUrl, PHONE_DISPLAY } from '@/lib/contact'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
   const [sent, setSent] = useState(false)
+  const [successMsg, setSuccessMsg] = useState('')
+  const [sending, setSending] = useState(false)
+  const [err, setErr] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // Readable, multi-line summary of the form used by both WhatsApp and email.
+  const summary = () =>
+    `Name: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nSubject: ${form.subject}\n\nMessage:\n${form.message}`
+
+  const reset = () => setForm({ name: '', email: '', phone: '', subject: '', message: '' })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const wa = whatsappUrl(
-      `Name: ${form.name}\nEmail: ${form.email}\nPhone: ${form.phone}\nSubject: ${form.subject}\nMessage: ${form.message}`
-    )
-    window.open(wa, '_blank')
+    window.open(whatsappUrl(summary()), '_blank')
+    setSuccessMsg("Your message has been opened in WhatsApp. We'll get back to you shortly.")
     setSent(true)
-    setForm({ name: '', email: '', phone: '', subject: '', message: '' })
+    reset()
+  }
+
+  const sendEmail = async () => {
+    // Enforce the same required fields as the WhatsApp submit.
+    if (formRef.current && !formRef.current.reportValidity()) return
+    setSending(true)
+    setErr('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        setSuccessMsg("Your message has been emailed to Pramora Living. We'll get back to you shortly.")
+        setSent(true)
+        reset()
+      } else {
+        setErr(data.error || 'Could not send email. Please try WhatsApp.')
+      }
+    } catch {
+      setErr('Could not send email. Please try WhatsApp.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -69,12 +103,12 @@ export default function ContactPage() {
               <div className="text-4xl mb-4">✓</div>
               <h3 className="font-serif text-xl mb-2" style={{ color: 'var(--text)' }}>Message Sent!</h3>
               <p className="text-sm" style={{ color: 'var(--text-2)' }}>
-                Your message has been opened in WhatsApp. We'll get back to you shortly.
+                {successMsg}
               </p>
               <button onClick={() => setSent(false)} className="btn-outline mt-6">Send Another</button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label className="label">Your Name *</label>
@@ -106,9 +140,15 @@ export default function ContactPage() {
                   placeholder="Tell us what you're looking for..."
                 />
               </div>
-              <button type="submit" className="btn-gold w-full justify-center">
-                <Send size={16} /> Send Message via WhatsApp
-              </button>
+              {err && <p className="text-red-500 text-sm">{err}</p>}
+              <div className="grid sm:grid-cols-2 gap-3">
+                <button type="submit" className="btn-gold w-full justify-center">
+                  <Send size={16} /> Send via WhatsApp
+                </button>
+                <button type="button" onClick={sendEmail} disabled={sending} className="btn-outline w-full justify-center">
+                  <Mail size={16} /> {sending ? 'Sending…' : 'Send via Email'}
+                </button>
+              </div>
             </form>
           )}
         </div>

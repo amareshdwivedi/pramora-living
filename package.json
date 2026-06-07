@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
+    "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^0.400.0",
@@ -21,7 +22,8 @@
     "papaparse": "^5.5.3",
     "react": "^18",
     "react-dom": "^18",
-    "react-icons": "^5.6.0"
+    "react-icons": "^5.6.0",
+    "resend": "^6.12.4"
   },
   "devDependencies": {
     "@types/node": "^20",

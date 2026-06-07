@@ -10,3 +10,9 @@ export const SITE_URL =
 export function whatsappUrl(message: string): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
 }
+
+/** Contact inbox + a prefilled mailto link builder. */
+export const CONTACT_EMAIL = 'pramoraliving@gmail.com'
+export function mailtoUrl(subject: string, body: string): string {
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
