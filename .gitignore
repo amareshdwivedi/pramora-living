@@ -16,3 +16,7 @@ npm-debug.log*
 
 # Build
 dist/
+.env*
+
+# TypeScript build info
+*.tsbuildinfo

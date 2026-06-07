@@ -1,8 +1,8 @@
 import { getProducts } from '@/lib/products'
 import { ProductCard } from '@/components/ProductCard'
 
-export default function ProductsPage() {
-  const products = getProducts().filter(p => p.status === 'active')
+export default async function ProductsPage() {
+  const products = (await getProducts()).filter(p => p.status === 'active')
   const types = [...new Set(products.map(p => p.type))]
 
   return (

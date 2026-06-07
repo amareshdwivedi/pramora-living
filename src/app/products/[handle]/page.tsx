@@ -5,12 +5,17 @@ import { ArrowLeft } from 'lucide-react'
 import { getProduct, getProducts } from '@/lib/products'
 import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/BrandIcons'
 
+// Render product pages on demand and keep them fresh; new items created by an
+// Amazon sync are served without a rebuild.
+export const dynamicParams = true
+export const revalidate = 60
+
 export async function generateStaticParams() {
-  return getProducts().map(p => ({ handle: p.handle }))
+  return (await getProducts()).map(p => ({ handle: p.handle }))
 }
 
-export default function ProductPage({ params }: { params: { handle: string } }) {
-  const product = getProduct(params.handle)
+export default async function ProductPage({ params }: { params: { handle: string } }) {
+  const product = await getProduct(params.handle)
   if (!product) notFound()
 
   const discount = Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getProducts, createProduct } from '@/lib/products'
 
 export async function GET() {
-  return NextResponse.json(getProducts())
+  return NextResponse.json(await getProducts())
 }
 
 export async function POST(req: NextRequest) {
@@ -11,6 +12,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const body = await req.json()
-  const product = createProduct(body)
+  const product = await createProduct(body)
+  revalidatePath('/')
+  revalidatePath('/products')
   return NextResponse.json(product, { status: 201 })
 }

@@ -5,8 +5,8 @@ import { getProducts } from '@/lib/products'
 import { ProductCard } from '@/components/ProductCard'
 import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/BrandIcons'
 
-export default function HomePage() {
-  const products = getProducts().filter(p => p.status === 'active')
+export default async function HomePage() {
+  const products = (await getProducts()).filter(p => p.status === 'active')
   const featured = products.slice(0, 6)
 
   return (

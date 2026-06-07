@@ -13,4 +13,15 @@ export interface Product {
   amazonUrl?: string
   flipkartUrl?: string
   meeshoUrl?: string
+
+  // Amazon listing link + last-synced snapshot (read-only on the site)
+  amazonSku?: string | null
+  asin?: string | null
+  amazonStatus?: string | null
+  currentPrice?: number | null
+  buyBoxPrice?: number | null
+  availableInventory?: string | null
+  totalFees?: number | null
+  amazonLastChanged?: string | null
+  amazonSyncedAt?: string | null
 }
