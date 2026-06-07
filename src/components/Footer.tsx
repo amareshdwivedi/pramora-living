@@ -4,7 +4,7 @@ import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY } from '@/lib/contact'
 
 const SOCIAL = [
   { label: 'Instagram', href: 'https://instagram.com/pramoraliving', Icon: FaInstagram },
-  { label: 'Facebook',  href: 'https://facebook.com/pramoraliving',  Icon: FaFacebook },
+  { label: 'Facebook',  href: 'https://www.facebook.com/profile.php?id=61590663961091', Icon: FaFacebook },
   { label: 'Twitter',   href: 'https://twitter.com/pramoraliving',   Icon: FaTwitter },
   { label: 'WhatsApp',  href: `https://wa.me/${WHATSAPP_NUMBER}`,     Icon: FaWhatsapp },
 ]
