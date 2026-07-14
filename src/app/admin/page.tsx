@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff, RefreshCw, ImageIcon } from 'lucide-react'
 import type { Product } from '@/lib/types'
 
 const EMPTY: Omit<Product, 'id'> = {
@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [msg, setMsg] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
+  const [fetchingImages, setFetchingImages] = useState(false)
   const [report, setReport] = useState<SyncReport | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -76,6 +77,27 @@ export default function AdminPage() {
     } finally {
       setSyncing(false)
       if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  const fetchImages = async () => {
+    setFetchingImages(true)
+    try {
+      const res = await fetch('/api/admin/sync/images', {
+        method: 'POST',
+        headers: { 'x-admin-password': password },
+      })
+      const data = await res.json()
+      if (res.ok) {
+        await load()
+        flash(`Images: ${data.updated} updated, ${data.notFound} not found, ${data.skipped} already had images.`)
+      } else {
+        flash(data.error || 'Image fetch failed.')
+      }
+    } catch {
+      flash('Image fetch failed — could not reach the server.')
+    } finally {
+      setFetchingImages(false)
     }
   }
 
@@ -151,6 +173,10 @@ export default function AdminPage() {
             className="hidden"
             onChange={e => { const file = e.target.files?.[0]; if (file) syncAmazon(file) }}
           />
+          <button onClick={fetchImages} disabled={fetchingImages} className="btn-outline">
+            <ImageIcon size={16} className={fetchingImages ? 'animate-pulse' : ''} />
+            {fetchingImages ? 'Fetching…' : 'Fetch Images'}
+          </button>
           <button onClick={() => fileRef.current?.click()} disabled={syncing} className="btn-outline">
             <RefreshCw size={16} className={syncing ? 'animate-spin' : ''} />
             {syncing ? 'Syncing…' : 'Sync from Amazon'}

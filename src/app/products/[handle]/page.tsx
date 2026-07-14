@@ -39,14 +39,22 @@ export default async function ProductPage({ params }: { params: { handle: string
       <div className="grid lg:grid-cols-2 gap-12 items-start">
         {/* Image */}
         <div className="relative aspect-square overflow-hidden" style={{ backgroundColor: 'var(--bg-2)' }}>
-          <Image
-            src={product.image || '/images/placeholder.jpg'}
-            alt={product.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
-          />
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--text-2)' }}>
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+          )}
           {discount > 0 && (
             <span className="absolute top-4 left-4 bg-gold-500 text-white text-xs font-bold px-3 py-1">
               {discount}% OFF

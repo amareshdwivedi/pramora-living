@@ -9,13 +9,21 @@ export function ProductCard({ product }: { product: Product }) {
     <Link href={`/products/${product.handle}`} className="group block card hover:shadow-lg">
       {/* Image */}
       <div className="product-img-wrap relative aspect-square overflow-hidden" style={{ backgroundColor: 'var(--bg-2)' }}>
-        <Image
-          src={product.image || '/images/placeholder.jpg'}
-          alt={product.title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--text-2)' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+            </svg>
+          </div>
+        )}
         {discount > 0 && (
           <span className="absolute top-3 left-3 bg-gold-500 text-white text-xs font-semibold px-2 py-0.5">
             {discount}% OFF
