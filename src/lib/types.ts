@@ -3,12 +3,14 @@ export interface Product {
   handle: string
   title: string
   description: string
+  aboutItem: string[]
   type: string
   tags: string[]
   price: number
   compareAtPrice: number
   sku: string
   image: string
+  images?: string[]
   status: 'active' | 'draft'
   amazonUrl?: string
   flipkartUrl?: string

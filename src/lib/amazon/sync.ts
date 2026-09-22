@@ -43,12 +43,13 @@ const moneyEq = (a: number | null, b: string | null): boolean => {
  *
  * - Matches existing products by amazonSku, then asin.
  * - Updates only Amazon-owned columns + the storefront price (Amazon is the
- *   price source of truth). Curated content (description, image, tags, title,
- *   compareAtPrice) is never touched.
+ *   price source of truth). Curated content (description, tags, compareAtPrice)
+ *   is never touched; storefront images and About bullets are refreshed after
+ *   the catalog snapshot is applied.
  * - Unknown SKUs are created as drafts for the admin to enrich.
  * - Records a sync_runs row and returns a per-item diff report.
  */
-export async function runSync(records: AmazonRecord[], source: 'csv' | 'sp-api'): Promise<SyncReport> {
+export async function runSync(records: AmazonRecord[], source: 'csv', onRecord?: (change: SyncChange) => void | Promise<void>): Promise<SyncReport> {
   const existing = await db.select().from(products)
   const bySku = new Map<string, ProductRow>()
   const byAsin = new Map<string, ProductRow>()
@@ -104,10 +105,14 @@ export async function runSync(records: AmazonRecord[], source: 'csv' | 'sp-api')
 
       if (fields.length > 0) {
         updated++
-        changes.push({ amazonSku: rec.amazonSku, asin: rec.asin, handle: match.handle, title: rec.title, kind: 'updated', fields })
+        const change = { amazonSku: rec.amazonSku, asin: rec.asin, handle: match.handle, title: rec.title, kind: 'updated' as const, fields }
+        changes.push(change)
+        await onRecord?.(change)
       } else {
         unchanged++
-        changes.push({ amazonSku: rec.amazonSku, asin: rec.asin, handle: match.handle, title: rec.title, kind: 'unchanged', fields: [] })
+        const change = { amazonSku: rec.amazonSku, asin: rec.asin, handle: match.handle, title: rec.title, kind: 'unchanged' as const, fields: [] }
+        changes.push(change)
+        await onRecord?.(change)
       }
       continue
     }
@@ -130,9 +135,12 @@ export async function runSync(records: AmazonRecord[], source: 'csv' | 'sp-api')
       totalFees: str(rec.totalFees),
       amazonLastChanged: rec.lastChanged,
       amazonSyncedAt: now,
+      image: '',
     })
     created++
-    changes.push({ amazonSku: rec.amazonSku, asin: rec.asin, handle, title: rec.title, kind: 'created', fields: [] })
+    const change = { amazonSku: rec.amazonSku, asin: rec.asin, handle, title: rec.title, kind: 'created' as const, fields: [] }
+    changes.push(change)
+    await onRecord?.(change)
   }
 
   const [run] = await db

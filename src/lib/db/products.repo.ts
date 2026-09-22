@@ -2,23 +2,35 @@ import { eq, asc } from 'drizzle-orm'
 import { db } from './client'
 import { products, type ProductRow, type NewProductRow } from './schema'
 import type { Product } from '../types'
+import { savedProductImages, usableStoredImage } from '../amazon/product-image-assets'
 
 const num = (v: string | null | undefined): number => (v == null ? 0 : Number(v))
 const numOrNull = (v: string | null | undefined): number | null => (v == null ? null : Number(v))
 
 /** Map a DB row to the Product shape used across the app. */
 function toProduct(r: ProductRow): Product {
+  const productKey = {
+    handle: r.handle,
+    title: r.title,
+    amazonSku: r.amazonSku,
+    asin: r.asin,
+  }
+  const images = savedProductImages(productKey)
+  const image = images[0] ?? usableStoredImage(r.image)
+
   return {
     id: r.id,
     handle: r.handle,
     title: r.title,
     description: r.description,
+    aboutItem: r.aboutItem ?? [],
     type: r.type,
     tags: r.tags ?? [],
     price: num(r.price),
     compareAtPrice: num(r.compareAtPrice),
     sku: r.sku ?? '',
-    image: r.image,
+    image,
+    images,
     status: (r.status === 'draft' ? 'draft' : 'active'),
     amazonUrl: r.amazonUrl ?? '',
     flipkartUrl: r.flipkartUrl ?? '',
@@ -41,6 +53,7 @@ function toRow(p: Partial<Product>): Partial<NewProductRow> {
   if (p.handle !== undefined) row.handle = p.handle
   if (p.title !== undefined) row.title = p.title
   if (p.description !== undefined) row.description = p.description
+  if (p.aboutItem !== undefined) row.aboutItem = p.aboutItem
   if (p.type !== undefined) row.type = p.type
   if (p.tags !== undefined) row.tags = p.tags
   if (p.price !== undefined) row.price = String(p.price)
@@ -85,4 +98,13 @@ export async function updateProduct(handle: string, updates: Partial<Product>): 
 export async function deleteProduct(handle: string): Promise<boolean> {
   const deleted = await db.delete(products).where(eq(products.handle, handle)).returning({ id: products.id })
   return deleted.length > 0
+}
+
+export async function publishAllProducts(): Promise<Product[]> {
+  const rows = await db
+    .update(products)
+    .set({ status: 'active', updatedAt: new Date() })
+    .where(eq(products.status, 'draft'))
+    .returning()
+  return rows.map(toProduct)
 }
