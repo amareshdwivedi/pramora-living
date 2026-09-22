@@ -1,4 +1,5 @@
 import { eq, asc } from 'drizzle-orm'
+import { del } from '@vercel/blob'
 import { db } from './client'
 import { products, type ProductRow, type NewProductRow } from './schema'
 import type { Product } from '../types'
@@ -9,6 +10,11 @@ const numOrNull = (v: string | null | undefined): number | null => (v == null ? 
 function storefrontImageUrl(url: string): string {
   if (!url || !url.includes('.blob.vercel-storage.com/')) return url
   return `/api/product-image?url=${encodeURIComponent(url)}`
+}
+
+function storedImageUrl(url: string): string {
+  if (!url.startsWith('/api/product-image?url=')) return url
+  try { return decodeURIComponent(url.slice('/api/product-image?url='.length)) } catch { return url }
 }
 
 /** Map a DB row to the Product shape used across the app. */
@@ -57,8 +63,12 @@ function toRow(p: Partial<Product>): Partial<NewProductRow> {
   if (p.price !== undefined) row.price = String(p.price)
   if (p.compareAtPrice !== undefined) row.compareAtPrice = String(p.compareAtPrice)
   if (p.sku !== undefined) row.sku = p.sku
-  if (p.image !== undefined) row.image = p.image
-  if (p.images !== undefined) row.images = p.images
+  if (p.images !== undefined) {
+    const images = p.images.map(storedImageUrl).filter(Boolean)
+    row.images = images
+    if (p.image === undefined) row.image = images[0] ?? ''
+  }
+  if (p.image !== undefined) row.image = storedImageUrl(p.image)
   if (p.status !== undefined) row.status = p.status
   if (p.amazonUrl !== undefined) row.amazonUrl = p.amazonUrl
   if (p.flipkartUrl !== undefined) row.flipkartUrl = p.flipkartUrl
@@ -94,7 +104,18 @@ export async function updateProduct(handle: string, updates: Partial<Product>): 
   return updated ? toProduct(updated) : null
 }
 
+/** Return the stored (not storefront proxy) image URLs for admin Blob operations. */
+export async function getStoredProductImages(handle: string): Promise<{ image: string; images: string[] } | null> {
+  const rows = await db.select({ image: products.image, images: products.images }).from(products).where(eq(products.handle, handle)).limit(1)
+  if (!rows[0]) return null
+  return { image: rows[0].image ?? '', images: (rows[0].images ?? []).filter(Boolean) }
+}
+
 export async function deleteProduct(handle: string): Promise<boolean> {
+  const stored = await getStoredProductImages(handle)
+  if (!stored) return false
+  const blobUrls = [...new Set([stored.image, ...stored.images])].filter(url => url.includes('.blob.vercel-storage.com/'))
+  if (blobUrls.length > 0) await del(blobUrls)
   const deleted = await db.delete(products).where(eq(products.handle, handle)).returning({ id: products.id })
   return deleted.length > 0
 }

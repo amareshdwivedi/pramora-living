@@ -32,6 +32,11 @@ export default function AdminPage() {
   const [fetchingImages, setFetchingImages] = useState(false)
   const [exportingImageUrls, setExportingImageUrls] = useState(false)
   const [syncingImageHandle, setSyncingImageHandle] = useState<string | null>(null)
+  const [imageManagerProduct, setImageManagerProduct] = useState<Product | null>(null)
+  const [selectedImageUrls, setSelectedImageUrls] = useState<string[]>([])
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imageUrlsInput, setImageUrlsInput] = useState('')
+  const [savingImages, setSavingImages] = useState(false)
   const [cleaningImages, setCleaningImages] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [report, setReport] = useState<SyncReport | null>(null)
@@ -39,6 +44,7 @@ export default function AdminPage() {
   const [syncTotal, setSyncTotal] = useState(0)
   const fileRef = useRef<HTMLInputElement>(null)
   const imageManifestFileRef = useRef<HTMLInputElement>(null)
+  const imageFilesRef = useRef<HTMLInputElement>(null)
 
   const headers = { 'Content-Type': 'application/json' }
 
@@ -189,6 +195,46 @@ export default function AdminPage() {
       flash('Product image sync failed — could not reach the server.')
     } finally {
       setSyncingImageHandle(null)
+    }
+  }
+
+  const openImageManager = (product: Product) => {
+    setImageManagerProduct(product)
+    setSelectedImageUrls([])
+    setImageFiles([])
+    setImageUrlsInput('')
+  }
+
+  const closeImageManager = () => {
+    setImageManagerProduct(null)
+    setSelectedImageUrls([])
+    setImageFiles([])
+    setImageUrlsInput('')
+    if (imageFilesRef.current) imageFilesRef.current.value = ''
+  }
+
+  const toggleImageSelection = (url: string) => {
+    setSelectedImageUrls(previous => previous.includes(url) ? previous.filter(item => item !== url) : [...previous, url])
+  }
+
+  const saveImages = async () => {
+    if (!imageManagerProduct) return
+    setSavingImages(true)
+    try {
+      const formData = new FormData()
+      formData.append('remove', JSON.stringify(selectedImageUrls))
+      formData.append('urls', JSON.stringify(imageUrlsInput.split(/\r?\n/).map(value => value.trim()).filter(Boolean)))
+      imageFiles.forEach(file => formData.append('files', file))
+      const res = await fetch(`/api/admin/products/${imageManagerProduct.handle}/images`, { method: 'POST', body: formData })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || 'Image update failed.')
+      await load()
+      flash(`Images updated: ${data.added ?? 0} added, ${data.removed ?? 0} removed.`)
+      closeImageManager()
+    } catch (error) {
+      flash(error instanceof Error ? error.message : 'Image update failed.')
+    } finally {
+      setSavingImages(false)
     }
   }
 
@@ -434,6 +480,52 @@ export default function AdminPage() {
         </div>
       )}
 
+      {imageManagerProduct && (
+        <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:p-8" onMouseDown={e => { if (e.target === e.currentTarget) closeImageManager() }}>
+          <div className="card my-auto w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto p-5 sm:p-8" role="dialog" aria-modal="true" aria-label={`Manage images for ${imageManagerProduct.title}`}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-serif text-xl font-medium" style={{ color: 'var(--text)' }}>Manage images</h2>
+                <p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{imageManagerProduct.title}</p>
+              </div>
+              <button onClick={closeImageManager} style={{ color: 'var(--text-2)' }} aria-label="Close image manager"><X size={20} /></button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              {(imageManagerProduct.images?.length ? imageManagerProduct.images : imageManagerProduct.image ? [imageManagerProduct.image] : []).map((url, index) => (
+                <label key={`${url}-${index}`} className={`relative aspect-square border cursor-pointer overflow-hidden ${selectedImageUrls.includes(url) ? 'border-red-500 ring-2 ring-red-300' : ''}`} style={{ borderColor: selectedImageUrls.includes(url) ? '#ef4444' : 'var(--border)', backgroundColor: 'var(--bg-2)' }}>
+                  <Image src={url} alt={`${imageManagerProduct.title} image ${index + 1}`} fill className="object-contain p-2" />
+                  <span className="absolute top-2 left-2 rounded bg-white/90 p-1 shadow">
+                    <input type="checkbox" checked={selectedImageUrls.includes(url)} onChange={() => toggleImageSelection(url)} aria-label={`Select image ${index + 1} for deletion`} />
+                  </span>
+                  <span className="absolute bottom-1 right-2 text-[10px] bg-black/60 text-white px-1.5 py-0.5">{index + 1}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="space-y-5 border-t pt-5" style={{ borderColor: 'var(--border)' }}>
+              <div>
+                <label className="label">Add image files (you can select multiple)</label>
+                <input ref={imageFilesRef} className="input" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple onChange={e => setImageFiles(Array.from(e.target.files ?? []))} />
+                {imageFiles.length > 0 && <p className="text-xs mt-2" style={{ color: 'var(--text-2)' }}>{imageFiles.length} file(s) selected</p>}
+              </div>
+              <div>
+                <label className="label">Add image URLs (one per line)</label>
+                <textarea className="input resize-none" rows={3} value={imageUrlsInput} onChange={e => setImageUrlsInput(e.target.value)} placeholder="https://.../product-image.jpg" />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-7 border-t pt-5" style={{ borderColor: 'var(--border)' }}>
+              <p className="text-xs" style={{ color: 'var(--text-2)' }}>{selectedImageUrls.length ? `${selectedImageUrls.length} image(s) selected for deletion` : 'Select images to remove them from the database and Blob.'}</p>
+              <div className="flex gap-3">
+                <button onClick={closeImageManager} className="btn-outline">Cancel</button>
+                <button onClick={saveImages} disabled={savingImages} className="btn-gold"><Check size={16} /> {savingImages ? 'Saving...' : 'Save image changes'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Products table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm border-collapse">
@@ -477,6 +569,9 @@ export default function AdminPage() {
                   <div className="flex items-center justify-end gap-2">
                     <button onClick={() => startEdit(p)} className="p-1.5 hover:text-gold-500 transition-colors" style={{ color: 'var(--text-2)' }}>
                       <Pencil size={15} />
+                    </button>
+                    <button onClick={() => openImageManager(p)} className="p-1.5 hover:text-gold-500 transition-colors" style={{ color: 'var(--text-2)' }} aria-label={`Manage images for ${p.title}`} title="Add or delete images">
+                      <ImageIcon size={15} />
                     </button>
                     <button
                       onClick={() => syncProductImages(p.handle)}

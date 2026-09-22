@@ -26,8 +26,12 @@ export async function PUT(req: NextRequest, { params }: { params: { handle: stri
 
 export async function DELETE(req: NextRequest, { params }: { params: { handle: string } }) {
   if (!isAdminRequest(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const ok = await deleteProduct(params.handle)
-  if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  revalidate(params.handle)
-  return NextResponse.json({ success: true })
+  try {
+    const ok = await deleteProduct(params.handle)
+    if (!ok) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    revalidate(params.handle)
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not delete product images.' }, { status: 502 })
+  }
 }

@@ -82,7 +82,7 @@ export default async function ProductPage({ params }: { params: { handle: string
           />
 
           {product.aboutItem.length > 0 && (
-            <section className="mb-7" aria-labelledby="about-this-item">
+            <section className="mb-7 rounded-xl border p-5" aria-labelledby="about-this-item" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-2)' }}>
               <h2 id="about-this-item" className="font-serif text-xl font-medium mb-3" style={{ color: 'var(--text)' }}>About this item</h2>
               <ul className="list-disc pl-5 space-y-2 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
                 {product.aboutItem.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
