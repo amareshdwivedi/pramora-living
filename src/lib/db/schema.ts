@@ -37,6 +37,7 @@ export const products = pgTable('products', {
   price: numeric('price', { precision: 10, scale: 2 }).notNull().default('0'),
   compareAtPrice: numeric('compare_at_price', { precision: 10, scale: 2 }).notNull().default('0'),
   image: text('image').notNull().default(''),
+  images: jsonb('images').$type<string[]>().notNull().default([]),
   status: text('status').notNull().default('active'),  // site visibility: active | draft
   amazonUrl: text('amazon_url').default(''),
   flipkartUrl: text('flipkart_url').default(''),

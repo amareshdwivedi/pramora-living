@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
         const report = await runSync(records, 'csv', async change => send({ type: 'item', stage: 'record', status: 'success', handle: change.handle, title: change.title, amazonSku: change.amazonSku, asin: change.asin }))
         const products = await getProducts()
         const byHandle = new Map(products.map(product => [product.handle, product]))
+        const recordByIdentity = new Map(records.map(record => [`${record.amazonSku}|${record.asin ?? ''}`, record]))
         const queue = Array.from(new Map(report.changes.map(change => byHandle.get(change.handle)).filter(Boolean).map(product => [product!.handle, product!])).values())
         const imageResults: { handle: string; images: number; error?: string }[] = []
 
@@ -48,8 +49,12 @@ export async function POST(req: NextRequest) {
           while (queue.length > 0) {
             const product = queue.shift(); if (!product) return
             try {
-              const result = await fetchAndStoreProductImages(product)
-              await updateProduct(product.handle, { ...(result.images[0] ? { image: result.images[0] } : {}), aboutItem: result.aboutItem })
+              const record = recordByIdentity.get(`${product.amazonSku ?? ''}|${product.asin ?? ''}`)
+              const result = await fetchAndStoreProductImages(product, record?.imageUrls ?? [])
+              await updateProduct(product.handle, {
+                ...(result.images[0] ? { image: result.images[0], images: result.images } : {}),
+                ...(result.aboutItem.length > 0 ? { aboutItem: result.aboutItem } : {}),
+              })
               imageResults.push({ handle: product.handle, images: result.images.length, ...(result.error ? { error: result.error } : {}) })
               send({ type: 'item', stage: 'storefront', status: result.images.length > 0 || result.aboutItem.length > 0 ? 'success' : 'error', handle: product.handle, title: product.title, amazonSku: product.amazonSku ?? undefined, asin: product.asin, ...(result.error ? { message: result.error } : {}) })
             } catch (error) {

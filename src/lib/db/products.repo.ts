@@ -2,21 +2,14 @@ import { eq, asc } from 'drizzle-orm'
 import { db } from './client'
 import { products, type ProductRow, type NewProductRow } from './schema'
 import type { Product } from '../types'
-import { savedProductImages, usableStoredImage } from '../amazon/product-image-assets'
 
 const num = (v: string | null | undefined): number => (v == null ? 0 : Number(v))
 const numOrNull = (v: string | null | undefined): number | null => (v == null ? null : Number(v))
 
 /** Map a DB row to the Product shape used across the app. */
 function toProduct(r: ProductRow): Product {
-  const productKey = {
-    handle: r.handle,
-    title: r.title,
-    amazonSku: r.amazonSku,
-    asin: r.asin,
-  }
-  const images = savedProductImages(productKey)
-  const image = images[0] ?? usableStoredImage(r.image)
+  const images = (r.images ?? []).filter(Boolean)
+  const image = images[0] ?? r.image
 
   return {
     id: r.id,
@@ -60,6 +53,7 @@ function toRow(p: Partial<Product>): Partial<NewProductRow> {
   if (p.compareAtPrice !== undefined) row.compareAtPrice = String(p.compareAtPrice)
   if (p.sku !== undefined) row.sku = p.sku
   if (p.image !== undefined) row.image = p.image
+  if (p.images !== undefined) row.images = p.images
   if (p.status !== undefined) row.status = p.status
   if (p.amazonUrl !== undefined) row.amazonUrl = p.amazonUrl
   if (p.flipkartUrl !== undefined) row.flipkartUrl = p.flipkartUrl

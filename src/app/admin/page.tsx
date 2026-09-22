@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff, RefreshCw, ImageIcon, LogOut } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Check, Lock, Eye, EyeOff, RefreshCw, ImageIcon, FileDown, LogOut } from 'lucide-react'
 import type { Product } from '@/lib/types'
 
 const EMPTY: Omit<Product, 'id'> = {
@@ -30,6 +30,7 @@ export default function AdminPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
   const [fetchingImages, setFetchingImages] = useState(false)
+  const [exportingImageUrls, setExportingImageUrls] = useState(false)
   const [syncingImageHandle, setSyncingImageHandle] = useState<string | null>(null)
   const [cleaningImages, setCleaningImages] = useState(false)
   const [publishing, setPublishing] = useState(false)
@@ -37,6 +38,7 @@ export default function AdminPage() {
   const [syncProgress, setSyncProgress] = useState<SyncProgressItem[]>([])
   const [syncTotal, setSyncTotal] = useState(0)
   const fileRef = useRef<HTMLInputElement>(null)
+  const imageManifestFileRef = useRef<HTMLInputElement>(null)
 
   const headers = { 'Content-Type': 'application/json' }
 
@@ -137,6 +139,34 @@ export default function AdminPage() {
       flash('Image cleanup failed — could not reach the server.')
     } finally {
       setFetchingImages(false)
+    }
+  }
+
+  const exportImageUrls = async (file: File) => {
+    setExportingImageUrls(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/admin/images/manifest', { method: 'POST', body: fd })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Image URL export failed.')
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = 'amazon-image-urls.csv'
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      URL.revokeObjectURL(url)
+      flash('Image URL CSV downloaded.')
+    } catch (error) {
+      flash(error instanceof Error ? error.message : 'Image URL export failed.')
+    } finally {
+      setExportingImageUrls(false)
+      if (imageManifestFileRef.current) imageManifestFileRef.current.value = ''
     }
   }
 
@@ -281,6 +311,17 @@ export default function AdminPage() {
             className="hidden"
             onChange={e => { const file = e.target.files?.[0]; if (file) syncAmazon(file) }}
           />
+          <input
+            ref={imageManifestFileRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={e => { const file = e.target.files?.[0]; if (file) exportImageUrls(file) }}
+          />
+          <button onClick={() => imageManifestFileRef.current?.click()} disabled={exportingImageUrls} className="btn-outline" title="Fetch Amazon image URLs into a CSV for Blob upload">
+            <FileDown size={16} className={exportingImageUrls ? 'animate-pulse' : ''} />
+            {exportingImageUrls ? 'Fetching URLs...' : 'Export Image URLs'}
+          </button>
           <button onClick={fetchImages} disabled={fetchingImages} className="btn-outline">
             <ImageIcon size={16} className={fetchingImages ? 'animate-pulse' : ''} />
             {fetchingImages ? 'Updating...' : 'Update Images'}

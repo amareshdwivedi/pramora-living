@@ -13,7 +13,7 @@ export async function DELETE(req: NextRequest) {
 
   const all = await getProducts()
   const removed = await clearAllStoredProductImages()
-  await Promise.all(all.map(product => updateProduct(product.handle, { image: '' })))
+  await Promise.all(all.map(product => updateProduct(product.handle, { image: '', images: [] })))
 
   revalidatePath('/')
   revalidatePath('/products')
@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
 
       if (result.aboutItem.length > 0 || result.images.length > 0) {
         await updateProduct(p.handle, {
-          ...(result.images[0] ? { image: result.images[0] } : {}),
-          aboutItem: result.aboutItem,
+          ...(result.images[0] ? { image: result.images[0], images: result.images } : {}),
+          ...(result.aboutItem.length > 0 ? { aboutItem: result.aboutItem } : {}),
         })
       }
 

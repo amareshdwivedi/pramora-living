@@ -1,0 +1,35 @@
+name: Build Amazon Image CSV desktop app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }} installer
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: amazon-image-csv-macos
+          - os: windows-latest
+            artifact: amazon-image-csv-windows
+
+    defaults:
+      run:
+        working-directory: tools/amazon-image-csv
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/amazon-image-csv/package.json
+      - run: npm install
+      - run: npm run desktop:build
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: tools/amazon-image-csv/dist/*
