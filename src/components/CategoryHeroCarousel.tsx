@@ -13,13 +13,12 @@ export function CategoryHeroCarousel({ products }: { products: Product[] }) {
     product: products.find(product => productCategory(product) === definition.key),
   })).filter(slide => slide.product)
   const [active, setActive] = useState(0)
-  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
-    if (paused || slides.length < 2) return
+    if (slides.length < 2) return
     const timer = window.setInterval(() => setActive(index => (index + 1) % slides.length), 5000)
     return () => window.clearInterval(timer)
-  }, [paused, slides.length])
+  }, [slides.length])
 
   if (slides.length === 0) return null
   const slide = slides[active % slides.length]
@@ -27,9 +26,9 @@ export function CategoryHeroCarousel({ products }: { products: Product[] }) {
   const images = product.images?.length ? product.images : product.image ? [product.image] : []
 
   return (
-    <div className="relative block" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
+    <div className="relative block">
       <div className="relative min-h-[420px] lg:min-h-[520px] overflow-hidden bg-black">
-        {images[0] && <Image key={images[0]} src={images[0]} alt={product.title} fill priority className="object-cover opacity-85 transition-opacity duration-700" sizes="50vw" />}
+        {images[0] && <Image key={images[0]} src={images[0]} alt="" fill priority className="object-cover opacity-85 transition-opacity duration-700" sizes="50vw" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10" />
         <div className="absolute inset-x-0 bottom-0 p-8 text-white">
           <p className="text-xs uppercase tracking-[0.3em] text-gold-300 mb-3">{slide.label}</p>
