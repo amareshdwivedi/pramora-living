@@ -32,7 +32,6 @@ export function CategoryHeroCarousel({ products }: { products: Product[] }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10" />
         <div className="absolute inset-x-0 bottom-0 p-8 text-white">
           <p className="text-xs uppercase tracking-[0.3em] text-gold-300 mb-3">{slide.label}</p>
-          <h2 className="text-4xl font-medium mb-3">{product.title}</h2>
           <p className="max-w-md text-sm text-white/80 mb-6">{slide.description}</p>
           <Link href={`/products/${product.handle}`} className="inline-flex items-center border border-white px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-colors">Explore {slide.label}</Link>
         </div>
