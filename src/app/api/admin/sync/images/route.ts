@@ -11,19 +11,27 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const all = await getProducts()
-  const removed = await clearAllStoredProductImages()
-  await Promise.all(all.map(product => updateProduct(product.handle, { image: '' })))
+  try {
+    const all = await getProducts()
+    const removed = await clearAllStoredProductImages()
+    await Promise.all(all.map(product => updateProduct(product.handle, { image: '', images: [] })))
 
-  revalidatePath('/')
-  revalidatePath('/products')
-  all.forEach(product => revalidatePath(`/products/${product.handle}`))
+    revalidatePath('/')
+    revalidatePath('/products')
+    all.forEach(product => revalidatePath(`/products/${product.handle}`))
 
-  return NextResponse.json({
-    products: all.length,
-    foldersRemoved: removed,
-    message: `Cleaned image galleries for ${all.length} product(s).`,
-  })
+    return NextResponse.json({
+      products: all.length,
+      imagesRemoved: removed,
+      message: `Removed ${removed} stored image(s) from ${all.length} product(s).`,
+    })
+  } catch (error) {
+    console.error('Blob image cleanup failed', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Blob image cleanup failed.' },
+      { status: 500 },
+    )
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -51,11 +59,22 @@ export async function POST(req: NextRequest) {
     while (queue.length > 0) {
       const p = queue.shift()
       if (!p) return
-      const result = await fetchAndStoreProductImages(p)
+      let result
+      try {
+        result = await fetchAndStoreProductImages(p)
+      } catch (error) {
+        failed.push({
+          handle: p.handle,
+          asin: p.asin ?? null,
+          error: error instanceof Error ? error.message : 'Blob upload failed',
+        })
+        continue
+      }
 
       if (result.aboutItem.length > 0 || result.images.length > 0) {
         await updateProduct(p.handle, {
           ...(result.images[0] ? { image: result.images[0] } : {}),
+          ...(result.images.length > 0 ? { images: result.images } : {}),
           aboutItem: result.aboutItem,
         })
       }

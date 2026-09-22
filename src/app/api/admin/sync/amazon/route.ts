@@ -49,7 +49,10 @@ export async function POST(req: NextRequest) {
             const product = queue.shift(); if (!product) return
             try {
               const result = await fetchAndStoreProductImages(product)
-              await updateProduct(product.handle, { ...(result.images[0] ? { image: result.images[0] } : {}), aboutItem: result.aboutItem })
+              await updateProduct(product.handle, {
+                ...(result.images[0] ? { image: result.images[0], images: result.images } : {}),
+                aboutItem: result.aboutItem,
+              })
               imageResults.push({ handle: product.handle, images: result.images.length, ...(result.error ? { error: result.error } : {}) })
               send({ type: 'item', stage: 'storefront', status: result.images.length > 0 || result.aboutItem.length > 0 ? 'success' : 'error', handle: product.handle, title: product.title, amazonSku: product.amazonSku ?? undefined, asin: product.asin, ...(result.error ? { message: result.error } : {}) })
             } catch (error) {

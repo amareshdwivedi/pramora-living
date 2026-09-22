@@ -126,15 +126,15 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/sync/images', {
         method: 'POST',
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({ error: `Server returned ${res.status} without a JSON response.` }))
       if (res.ok) {
         await load()
         flash(data.message || `Cleared ${data.cleaned ?? 0} broken image placeholder(s).`)
       } else {
         flash(data.error || 'Image cleanup failed.')
       }
-    } catch {
-      flash('Image cleanup failed — could not reach the server.')
+    } catch (error) {
+      flash(error instanceof Error ? error.message : 'Image update failed — could not reach the server.')
     } finally {
       setFetchingImages(false)
     }
@@ -148,15 +148,15 @@ export default function AdminPage() {
         headers,
         body: JSON.stringify({ handle }),
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({ error: `Server returned ${res.status} without a JSON response.` }))
       if (res.ok) {
         await load()
         flash(data.message || 'Product images updated.')
       } else {
         flash(data.error || 'Product image sync failed.')
       }
-    } catch {
-      flash('Product image sync failed — could not reach the server.')
+    } catch (error) {
+      flash(error instanceof Error ? error.message : 'Product image sync failed — could not reach the server.')
     } finally {
       setSyncingImageHandle(null)
     }
@@ -167,15 +167,15 @@ export default function AdminPage() {
     setCleaningImages(true)
     try {
       const res = await fetch('/api/admin/sync/images', { method: 'DELETE', headers })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({ error: `Server returned ${res.status} without a JSON response.` }))
       if (res.ok) {
         await load()
         flash(data.message || 'All product images cleaned.')
       } else {
         flash(data.error || 'Image cleanup failed.')
       }
-    } catch {
-      flash('Image cleanup failed — could not reach the server.')
+    } catch (error) {
+      flash(error instanceof Error ? error.message : 'Image cleanup failed — could not reach the server.')
     } finally {
       setCleaningImages(false)
     }
