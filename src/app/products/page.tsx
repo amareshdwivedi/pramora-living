@@ -12,7 +12,7 @@ export default async function ProductsPage() {
         <h1 className="section-title">All Products</h1>
         <div className="divider mx-auto" />
         <p className="section-subtitle mx-auto text-center">
-          Handcrafted sculptures and home décor pieces for every taste and space.
+          Handcrafted pieces shaped by skilled artisans and chosen for thoughtful, lasting spaces.
         </p>
       </div>
 

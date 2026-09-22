@@ -22,9 +22,9 @@ export function Footer() {
         {/* Brand */}
         <div className="lg:col-span-1">
           <h3 className="font-serif text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>Pramora Living</h3>
-          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan Home Décor</p>
+          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan-Made Pieces</p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-            Curated luxury sculptures and home décor pieces that bring elegance, culture, and artistry into your living space.
+            Artisan-crafted pieces made with natural character, thoughtful design, and a commitment to more conscious living.
           </p>
         </div>
 

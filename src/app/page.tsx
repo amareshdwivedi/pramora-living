@@ -24,7 +24,7 @@ export default async function HomePage() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
           <div className="animate-fade-in">
             <p className="text-xs uppercase tracking-[0.3em] mb-4" style={{ color: 'var(--gold)' }}>
-              Artisan Home Décor
+              Artisan-Made Pieces
             </p>
             <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-medium leading-tight mb-6" style={{ color: 'var(--text)' }}>
               Where Art<br />
@@ -32,7 +32,7 @@ export default async function HomePage() {
               Home
             </h1>
             <p className="text-base leading-relaxed mb-8 max-w-md" style={{ color: 'var(--text-2)' }}>
-              Discover handcrafted sculptures and luxury décor that transform every corner of your home into a statement of refined taste.
+              Discover thoughtfully handcrafted pieces made by skilled artisans, using natural materials and conscious design to bring warmth, character, and meaning into your home.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/products" className="btn-gold">
@@ -105,10 +105,10 @@ export default async function HomePage() {
             <h2 className="section-title">Crafted with<br />Intention</h2>
             <div className="divider" />
             <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-2)' }}>
-              Pramora Living was born from a passion for preserving India's rich artistic heritage while bringing it into contemporary living spaces.
+              We bring together artisan craftsmanship, natural materials, and responsible design to create pieces that feel beautiful, meaningful, and made to last.
             </p>
             <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-2)' }}>
-              Every sculpture in our collection is a conversation between tradition and modernity — handcrafted by skilled artisans and curated for homes that appreciate the beauty of meaningful objects.
+              Each piece is thoughtfully chosen for homes that value natural character, conscious living, and the enduring beauty of work made by hand.
             </p>
             <Link href="/contact" className="btn-gold">
               Connect With Us <ArrowRight size={16} />
