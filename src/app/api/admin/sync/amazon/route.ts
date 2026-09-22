@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { parseAmazonCsv } from '@/lib/amazon/csv'
 import { runSync, type SyncReport } from '@/lib/amazon/sync'
-import { getProducts, updateProduct } from '@/lib/products'
-import { fetchAndStoreProductImages } from '@/lib/amazon/product-image-assets'
+import { getProducts, reconcileAllStoredProductImages, updateProduct } from '@/lib/products'
+import { fetchAndStoreProductImages, reconcileProductImageBlobs } from '@/lib/amazon/product-image-assets'
 import { isAdminRequest } from '@/lib/admin-auth'
 
 export const maxDuration = 300
@@ -51,10 +51,11 @@ export async function POST(req: NextRequest) {
             try {
               const record = recordByIdentity.get(`${product.amazonSku ?? ''}|${product.asin ?? ''}`)
               const result = await fetchAndStoreProductImages(product, record?.imageUrls ?? [])
-              await updateProduct(product.handle, {
+              const updated = await updateProduct(product.handle, {
                 ...(result.images[0] ? { image: result.images[0], images: result.images } : {}),
                 ...(result.aboutItem.length > 0 ? { aboutItem: result.aboutItem } : record?.aboutItem?.length ? { aboutItem: record.aboutItem } : {}),
               })
+              if (updated && result.images.length > 0) await reconcileProductImageBlobs(updated, result.images)
               imageResults.push({ handle: product.handle, images: result.images.length, ...(result.error ? { error: result.error } : {}) })
               send({ type: 'item', stage: 'storefront', status: result.images.length > 0 || result.aboutItem.length > 0 || Boolean(record?.aboutItem?.length) ? 'success' : 'error', handle: product.handle, title: product.title, amazonSku: product.amazonSku ?? undefined, asin: product.asin, ...(result.error ? { message: result.error } : {}) })
             } catch (error) {
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
           }
         }
         await Promise.all(Array.from({ length: Math.min(4, Math.max(1, queue.length)) }, () => worker()))
+        await reconcileAllStoredProductImages()
         revalidatePath('/'); revalidatePath('/products'); report.changes.forEach(change => revalidatePath(`/products/${change.handle}`))
         send({ type: 'complete', report: { ...report, imagesUpdated: imageResults.filter(result => result.images > 0).length, imagesFetched: imageResults.reduce((total, result) => total + result.images, 0), imageFailures: imageResults.filter(result => result.images === 0).length } })
       } catch (error) { send({ type: 'error', message: error instanceof Error ? error.message : 'Sync failed.' }) }

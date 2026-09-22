@@ -36,8 +36,8 @@ const config: Config = {
         }
       },
       fontFamily: {
-        serif: ['Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', 'Georgia', 'serif'],
-        sans: ['Avenir Next', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        serif: ['Amazon Ember', 'Arial', 'Helvetica Neue', 'sans-serif'],
+        sans: ['Amazon Ember', 'Arial', 'Helvetica Neue', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out',

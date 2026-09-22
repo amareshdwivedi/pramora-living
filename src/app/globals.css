@@ -21,12 +21,12 @@
   }
   html { scroll-behavior: smooth; }
   body {
-    @apply font-sans;
+    font-family: 'Amazon Ember', Arial, 'Helvetica Neue', sans-serif;
     background-color: var(--bg);
     color: var(--text);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
-  h1, h2, h3, h4 { @apply font-serif; }
+  h1, h2, h3, h4 { font-family: 'Amazon Ember', Arial, 'Helvetica Neue', sans-serif; }
 }
 
 @layer components {

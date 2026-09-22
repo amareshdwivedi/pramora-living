@@ -163,6 +163,23 @@ async function deleteBlobUrls(urls: string[]) {
   }
 }
 
+/** Remove every Blob in a product folder that is not currently referenced by the database. */
+export async function reconcileProductImageBlobs(
+  product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>,
+  keepUrls: string[],
+): Promise<number> {
+  const keep = new Set(keepUrls.filter(url => url.includes('.blob.vercel-storage.com/')))
+  const existing = await blobUrlsWithPrefix(blobPrefixForProduct(product))
+  const orphaned = existing.filter(url => !keep.has(url))
+  if (orphaned.length > 0) await deleteBlobUrls(orphaned)
+  return orphaned.length
+}
+
+/** Delete the complete product folder, including files orphaned from the DB. */
+export async function deleteProductImageBlobs(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>): Promise<number> {
+  return reconcileProductImageBlobs(product, [])
+}
+
 function imageCandidateFromUrl(url: string): ImageCandidate | null {
   try {
     const parsed = new URL(url)
@@ -212,7 +229,6 @@ export async function fetchAndStoreProductImages(product: Product, imageUrls: st
   }
 
   const prefix = blobPrefixForProduct(product)
-  const previousUrls = await blobUrlsWithPrefix(prefix)
   const images: string[] = []
   try {
     for (const [index, candidate] of candidates.entries()) {
@@ -228,7 +244,6 @@ export async function fetchAndStoreProductImages(product: Product, imageUrls: st
       })
       images.push(blob.url)
     }
-    if (images.length > 0) await deleteBlobUrls(previousUrls)
   } catch (uploadError) {
     await deleteBlobUrls(images).catch(() => undefined)
     throw uploadError

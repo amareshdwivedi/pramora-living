@@ -1,12 +1,16 @@
+'use client'
+
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Product } from '@/lib/types'
 import { ProductImageCarousel } from './ProductImageCarousel'
 
 export function ProductCard({ product }: { product: Product }) {
+  const router = useRouter()
   const discount = Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
 
   return (
-    <div className="group block card hover:shadow-lg">
+    <div className="group block card hover:shadow-lg cursor-pointer" role="link" tabIndex={0} onClick={() => router.push(`/products/${product.handle}`)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') router.push(`/products/${product.handle}`) }}>
       <div className="relative">
         <ProductImageCarousel images={product.images?.length ? product.images : product.image ? [product.image] : []} alt={product.title} className="product-img-wrap" />
         {discount > 0 && (
@@ -17,7 +21,7 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
 
       {/* Info */}
-      <Link href={`/products/${product.handle}`} className="block p-4">
+      <Link href={`/products/${product.handle}`} onClick={event => event.stopPropagation()} className="block p-4">
         <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--gold)' }}>{product.type}</p>
         <h3 className="font-serif text-lg font-medium mb-2 group-hover:text-gold-600 transition-colors" style={{ color: 'var(--text)' }}>
           {product.title}

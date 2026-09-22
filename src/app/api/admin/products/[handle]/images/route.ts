@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { del, put } from '@vercel/blob'
-import { getProduct, getStoredProductImages, updateProduct } from '@/lib/products'
-import { productImageFolderName } from '@/lib/amazon/product-image-assets'
+import { getProduct, getStoredProductImages, reconcileAllStoredProductImages, updateProduct } from '@/lib/products'
+import { productImageFolderName, reconcileProductImageBlobs } from '@/lib/amazon/product-image-assets'
 import { isAdminRequest } from '@/lib/admin-auth'
 
 export const maxDuration = 300
@@ -15,13 +15,6 @@ function unwrapImageUrl(value: string): string {
     try { return decodeURIComponent(value.slice('/api/product-image?url='.length)) } catch { return value }
   }
   return value
-}
-
-function isBlobUrl(value: string): boolean {
-  try {
-    const url = new URL(value)
-    return url.protocol === 'https:' && url.hostname.endsWith('.blob.vercel-storage.com') && url.pathname.startsWith('/product-images/')
-  } catch { return false }
 }
 
 function extensionForContentType(contentType: string): string {
@@ -72,12 +65,9 @@ export async function POST(req: NextRequest, { params }: { params: { handle: str
   const current = [...new Set([stored.image, ...stored.images].filter(Boolean))]
   const removeSet = new Set(remove)
   const retained = current.filter(url => !removeSet.has(url))
-  const removedBlobUrls = current.filter(url => removeSet.has(url) && isBlobUrl(url))
   const addedBlobUrls: string[] = []
 
   try {
-    if (removedBlobUrls.length > 0) await del(removedBlobUrls)
-
     const prefix = `product-images/${productImageFolderName(product)}/`
     let index = 0
     for (const file of files) {
@@ -99,11 +89,13 @@ export async function POST(req: NextRequest, { params }: { params: { handle: str
     const images = [...retained, ...addedBlobUrls]
     const updated = await updateProduct(params.handle, { image: images[0] ?? '', images })
     if (!updated) throw new Error('Product was removed while updating images.')
+    const removed = await reconcileProductImageBlobs(product, images)
+    const globallyRemoved = await reconcileAllStoredProductImages()
 
     revalidatePath('/')
     revalidatePath('/products')
     revalidatePath(`/products/${params.handle}`)
-    return NextResponse.json({ product: updated, removed: removedBlobUrls.length, added: addedBlobUrls.length })
+    return NextResponse.json({ product: updated, removed: removed + globallyRemoved, added: addedBlobUrls.length })
   } catch (error) {
     if (addedBlobUrls.length > 0) await del(addedBlobUrls).catch(() => undefined)
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Image update failed.' }, { status: 502 })
