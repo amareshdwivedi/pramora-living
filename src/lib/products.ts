@@ -10,6 +10,9 @@ export {
   getProduct,
   createProduct,
   updateProduct,
+  getStoredProductImages,
+  reconcileAllStoredProductImages,
   deleteProduct,
   publishAllProducts,
+  publishProducts,
 } from './db/products.repo'

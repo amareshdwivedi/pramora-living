@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Amazon Image URL CSV</title>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; }
+      body { max-width: 680px; margin: 0 auto; padding: 48px 20px; color: #26231f; background: #faf8f4; }
+      main { padding: 28px; border: 1px solid #ded7cc; border-radius: 14px; background: white; box-shadow: 0 8px 30px #34281712; }
+      h1 { margin: 0 0 8px; font: 600 28px Georgia, serif; }
+      p { color: #6b6257; line-height: 1.5; }
+      label { display: block; margin: 24px 0 8px; font-weight: 600; }
+      input[type=file] { width: 100%; box-sizing: border-box; padding: 12px; border: 1px dashed #b9ad9d; border-radius: 8px; background: #fdfcf9; }
+      button { margin-top: 20px; border: 0; border-radius: 8px; padding: 12px 18px; color: white; background: #8d6b3f; font-weight: 600; cursor: pointer; }
+      button:disabled { opacity: .55; cursor: wait; }
+      #status { min-height: 24px; margin-top: 18px; color: #6b6257; }
+      .hint { font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Amazon image URL CSV</h1>
+    <p>Select a Seller Central CSV. The local server preserves its fields, fetches each ASIN's product-carousel images and About bullets, then downloads an enriched manifest CSV.</p>
+      <form id="form">
+        <label for="csv">Seller Central CSV</label>
+        <input id="csv" type="file" accept=".csv,text/csv" required>
+        <button id="submit" type="submit">Fetch image URLs</button>
+      </form>
+      <div id="status" role="status"></div>
+      <p class="hint">The CSV must contain SKU and ASIN columns. Amazon requests run locally; no Vercel credentials are used.</p>
+    </main>
+    <script>
+      const form = document.querySelector('#form')
+      const fileInput = document.querySelector('#csv')
+      const button = document.querySelector('#submit')
+      const status = document.querySelector('#status')
+      form.addEventListener('submit', async event => {
+        event.preventDefault()
+        const file = fileInput.files[0]
+        if (!file) return
+        button.disabled = true
+        status.textContent = 'Fetching Amazon image URLs… this may take a few minutes.'
+        try {
+          const response = await fetch('/api/process', { method: 'POST', headers: { 'Content-Type': 'text/csv' }, body: await file.text() })
+          if (!response.ok) {
+            const data = await response.json().catch(() => ({}))
+            throw new Error(data.error || 'Processing failed.')
+          }
+          const blob = await response.blob()
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = 'amazon-image-urls.csv'
+          link.click()
+          URL.revokeObjectURL(url)
+          status.textContent = 'Done. The image manifest CSV was downloaded.'
+        } catch (error) {
+          status.textContent = error.message || 'Processing failed.'
+        } finally {
+          button.disabled = false
+        }
+      })
+    </script>
+  </body>
+</html>

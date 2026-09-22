@@ -46,8 +46,8 @@ export default async function HomePage() {
           {/* Hero product grid */}
           <div className="hidden lg:grid grid-cols-2 gap-3 animate-slide-up">
             {products.slice(0, 4).map((p, i) => (
-              <div key={p.handle}
-                className={`relative overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
+              <Link key={p.handle} href={`/products/${p.handle}`}
+                className={`group relative overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
                 style={{ aspectRatio: i === 0 ? '3/4' : '1/1' }}
               >
                 <ProductImageCarousel
@@ -57,8 +57,8 @@ export default async function HomePage() {
                   showNavigation={false}
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <Link href={`/products/${p.handle}`} className="absolute bottom-3 left-3 z-20 text-white font-serif text-sm font-medium">{p.title}</Link>
-              </div>
+                <span className="absolute bottom-3 left-3 z-20 text-white text-sm font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">{p.title}</span>
+              </Link>
             ))}
           </div>
         </div>
@@ -107,12 +107,13 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="grid grid-cols-2 gap-3">
             {products.slice(4, 8).map(p => (
-              <div key={p.handle} className="relative aspect-square overflow-hidden">
+              <Link key={p.handle} href={`/products/${p.handle}`} className="relative aspect-square overflow-hidden block focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-500">
                 <ProductImageCarousel
                   images={p.images?.length ? p.images : p.image ? [p.image] : []}
                   alt={p.title}
+                  showNavigation={false}
                 />
-              </div>
+              </Link>
             ))}
           </div>
           <div>

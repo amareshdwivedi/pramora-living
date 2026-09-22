@@ -1,0 +1,31 @@
+{
+  "name": "amazon-image-csv",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Create an Amazon product image URL manifest from a Seller Central CSV",
+  "type": "module",
+  "main": "desktop-main.mjs",
+  "scripts": {
+    "start": "node index.mjs",
+    "web": "node server.mjs",
+    "desktop": "electron desktop-main.mjs",
+    "desktop:build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.pramoraliving.amazonimagecsv",
+    "productName": "Amazon Image CSV",
+    "files": [
+      "*.mjs",
+      "*.html",
+      "package.json",
+      "README.md"
+    ],
+    "mac": { "target": ["dmg", "zip"] },
+    "win": { "target": ["nsis", "zip"] },
+    "linux": { "target": ["AppImage", "zip"] }
+  },
+  "devDependencies": {
+    "electron": "^35.1.5",
+    "electron-builder": "^26.0.12"
+  }
+}

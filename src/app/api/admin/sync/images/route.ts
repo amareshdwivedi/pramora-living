@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { getProducts, updateProduct } from '@/lib/products'
-import { clearAllStoredProductImages, fetchAndStoreProductImages } from '@/lib/amazon/product-image-assets'
+import { getProducts, reconcileAllStoredProductImages, updateProduct } from '@/lib/products'
+import { clearAllStoredProductImages, fetchAndStoreProductImages, reconcileProductImageBlobs } from '@/lib/amazon/product-image-assets'
 import { isAdminRequest } from '@/lib/admin-auth'
 
 export const maxDuration = 300
@@ -13,7 +13,7 @@ export async function DELETE(req: NextRequest) {
 
   const all = await getProducts()
   const removed = await clearAllStoredProductImages()
-  await Promise.all(all.map(product => updateProduct(product.handle, { image: '' })))
+  await Promise.all(all.map(product => updateProduct(product.handle, { image: '', images: [] })))
 
   revalidatePath('/')
   revalidatePath('/products')
@@ -54,10 +54,11 @@ export async function POST(req: NextRequest) {
       const result = await fetchAndStoreProductImages(p)
 
       if (result.aboutItem.length > 0 || result.images.length > 0) {
-        await updateProduct(p.handle, {
-          ...(result.images[0] ? { image: result.images[0] } : {}),
-          aboutItem: result.aboutItem,
+        const updated = await updateProduct(p.handle, {
+          ...(result.images[0] ? { image: result.images[0], images: result.images } : {}),
+          ...(result.aboutItem.length > 0 ? { aboutItem: result.aboutItem } : {}),
         })
+        if (updated && result.images.length > 0) await reconcileProductImageBlobs(updated, result.images)
       }
 
       if (result.images.length === 0) {
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
     }
   }
   await Promise.all(Array.from({ length: Math.min(4, queue.length) }, () => worker()))
+  const orphaned = await reconcileAllStoredProductImages()
 
   revalidatePath('/')
   revalidatePath('/products')
@@ -87,6 +89,7 @@ export async function POST(req: NextRequest) {
         ? `Fetched ${changed.reduce((total, p) => total + p.images.length, 0)} image(s) for ${changed.length} product(s).`
         : 'No product images were fetched.',
       failed.length > 0 ? `${failed.length} image fetch issue(s).` : '',
+      orphaned > 0 ? `Removed ${orphaned} orphaned Blob image(s).` : '',
     ].filter(Boolean).join(' '),
     affected: changed,
   })

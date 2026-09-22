@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { publishAllProducts } from '@/lib/products'
+import { publishProducts } from '@/lib/products'
 import { isAdminRequest } from '@/lib/admin-auth'
 
 export async function POST(req: NextRequest) {
@@ -8,7 +8,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const published = await publishAllProducts()
+  const body = await req.json().catch(() => ({})) as { handles?: unknown }
+  const handles = Array.isArray(body.handles) ? body.handles.map(handle => String(handle).trim()).filter(Boolean) : undefined
+  const published = await publishProducts(handles)
 
   revalidatePath('/')
   revalidatePath('/products')

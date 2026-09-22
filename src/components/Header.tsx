@@ -2,8 +2,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { LogOut, Menu, X } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 
 const NAV = [
@@ -15,6 +15,18 @@ const NAV = [
 export function Header() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [adminAuthed, setAdminAuthed] = useState(false)
+
+  useEffect(() => {
+    if (pathname !== '/admin' && !pathname.startsWith('/admin/')) return
+    fetch('/api/admin/auth').then(response => setAdminAuthed(response.ok)).catch(() => setAdminAuthed(false))
+  }, [pathname])
+
+  const logout = async () => {
+    await fetch('/api/admin/auth', { method: 'DELETE' })
+    setAdminAuthed(false)
+    window.location.href = '/admin'
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--border)' }}>
@@ -49,6 +61,11 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
+          {adminAuthed && (
+            <button type="button" onClick={logout} className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-widest hover:text-gold-500" style={{ color: 'var(--text-2)' }}>
+              <LogOut size={15} /> Logout
+            </button>
+          )}
           {/* Mobile menu toggle */}
           <button
             className="md:hidden w-9 h-9 flex items-center justify-center"

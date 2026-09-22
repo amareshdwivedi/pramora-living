@@ -1,5 +1,4 @@
-import fs from 'node:fs'
-import fsp from 'node:fs/promises'
+import { del, list, put } from '@vercel/blob'
 import path from 'node:path'
 import type { Product } from '@/lib/types'
 
@@ -19,8 +18,7 @@ export type ProductImageFetchResult = {
   error?: string
 }
 
-const productImagesRoot = path.join(process.cwd(), 'public/images/products')
-const imageFilePattern = /^image-\d+\.(jpe?g|png|webp)$/i
+const blobRoot = 'product-images/'
 
 function slugify(input: string): string {
   return input
@@ -32,40 +30,16 @@ function slugify(input: string): string {
     .replace(/-+$/g, '') || 'product'
 }
 
-function publicPathForFile(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>, fileName: string): string {
-  return `/images/products/${productImageFolderName(product)}/${fileName}`
-}
-
 export function productImageFolderName(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>): string {
   const key = [product.amazonSku, product.asin].filter(Boolean).join('_') || product.handle
   return `${key}_${slugify(product.title || product.handle)}`
 }
 
-export function productImageFolderPath(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>): string {
-  return path.join(productImagesRoot, productImageFolderName(product))
+function blobPrefixForProduct(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>): string {
+  return `${blobRoot}${productImageFolderName(product)}/`
 }
 
-export function savedProductImages(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>): string[] {
-  const dir = productImageFolderPath(product)
-  if (!fs.existsSync(dir)) return []
-
-  return fs
-    .readdirSync(dir)
-    .filter(file => imageFilePattern.test(file))
-    .sort()
-    .map(file => publicPathForFile(product, file))
-}
-
-export function usableStoredImage(image: string): string {
-  if (!image) return ''
-  if (/^https?:\/\//i.test(image)) return image
-  if (!image.startsWith('/')) return image
-
-  const localPath = path.join(process.cwd(), 'public', image.replace(/^\/+/, ''))
-  return fs.existsSync(localPath) ? image : ''
-}
-
-async function fetchImage(url: string): Promise<Buffer | null> {
+async function fetchImage(url: string): Promise<{ body: Buffer; contentType: string } | null> {
   const res = await fetch(url, {
     headers: {
       'user-agent': 'Mozilla/5.0 PramoraLiving/1.0',
@@ -76,7 +50,7 @@ async function fetchImage(url: string): Promise<Buffer | null> {
   if (!res.ok) return null
   const contentType = res.headers.get('content-type') ?? ''
   if (!contentType.startsWith('image/') || contentType.includes('gif')) return null
-  return Buffer.from(await res.arrayBuffer())
+  return { body: Buffer.from(await res.arrayBuffer()), contentType }
 }
 
 function mediaFileNameFromUrl(url: string): string | null {
@@ -91,6 +65,11 @@ function mediaFileNameFromUrl(url: string): string | null {
 
 function decodeHtmlText(value: string): string {
   return value
+    .replace(/\\u003c/gi, '<')
+    .replace(/\\u003e/gi, '>')
+    .replace(/\\u0026/gi, '&')
+    .replace(/\\u0022/gi, '"')
+    .replace(/\\u0027/gi, "'")
     .replace(/<br\s*\/?\s*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
@@ -100,20 +79,24 @@ function decodeHtmlText(value: string): string {
     .replace(/&lt;/gi, '<')
     .replace(/&gt;/gi, '>')
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
     .replace(/\s+/g, ' ')
     .trim()
 }
 
 function parseAboutItem(html: string): string[] {
-  const start = html.indexOf('feature-bullets_feature_div')
-  if (start < 0) return []
-  const listStart = html.indexOf('<ul', start)
-  const listEnd = listStart >= 0 ? html.indexOf('</ul>', listStart) : -1
-  if (listStart < 0 || listEnd < listStart) return []
-  const listHtml = html.slice(listStart, listEnd)
-  return [...listHtml.matchAll(/<li[^>]*>[\s\S]*?<span[^>]*class="[^"]*a-list-item[^"]*"[^>]*>([\s\S]*?)<\/span>/gi)]
-    .map(match => decodeHtmlText(match[1]))
-    .filter((item, index, items) => item.length > 0 && items.indexOf(item) === index)
+  const marker = /feature-bullets(?:_feature_div)?|id\s*=\s*["']feature-bullets["']/i.exec(html)
+  const section = marker ? html.slice(marker.index, marker.index + 100_000) : html
+  const listStart = section.search(/<ul\b/i)
+  const listEnd = listStart >= 0 ? section.search(/<\/ul\s*>/i) : -1
+  const listHtml = listStart >= 0 && listEnd > listStart ? section.slice(listStart, listEnd) : section
+  const values = [...listHtml.matchAll(/<span\b[^>]*\bclass\s*=\s*(["'])[^"']*\ba-list-item\b[^"']*\1[^>]*>([\s\S]*?)<\/span>/gi)]
+    .map(match => match[2])
+  if (values.length === 0) values.push(...[...listHtml.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li\s*>/gi)].map(match => match[1]))
+  return values
+    .map(decodeHtmlText)
+    .map(item => item.replace(/\s*(?:See more|Read more)\s*$/i, '').trim())
+    .filter((item, index, items) => item.length > 2 && items.indexOf(item) === index)
 }
 
 async function fetchAmazonStorefrontProduct(asin: string): Promise<{ candidates: ImageCandidate[]; aboutItem: string[] }> {
@@ -131,7 +114,7 @@ async function fetchAmazonStorefrontProduct(asin: string): Promise<{ candidates:
   const galleryEnd = galleryStart >= 0 ? html.indexOf('</ul>', galleryStart) : -1
   const galleryHtml = galleryStart >= 0 && galleryEnd > galleryStart
     ? html.slice(galleryStart, galleryEnd)
-    : html
+    : ''
   const seen = new Set<string>()
   const candidates: ImageCandidate[] = []
 
@@ -147,7 +130,7 @@ async function fetchAmazonStorefrontProduct(asin: string): Promise<{ candidates:
     addCandidate(match[1])
   }
 
-  if (candidates.length === 0) {
+  if (candidates.length === 0 && galleryHtml) {
     for (const match of galleryHtml.matchAll(/https:\/\/m\.media-amazon\.com\/images\/I\/[^"&\s]+\.(?:jpe?g|png|webp)(?:\?[^"\s]*)?/gi)) {
       addCandidate(match[0])
     }
@@ -156,16 +139,65 @@ async function fetchAmazonStorefrontProduct(asin: string): Promise<{ candidates:
   return { candidates, aboutItem: parseAboutItem(html) }
 }
 
-async function clearSavedGallery(dir: string) {
-  const entries = await fsp.readdir(dir).catch(() => [])
-  await Promise.all(
-    entries
-      .filter(entry => imageFilePattern.test(entry) || /^main\.(jpe?g|png|webp)$/i.test(entry) || entry === 'source-url.txt')
-      .map(entry => fsp.unlink(path.join(dir, entry)).catch(() => undefined)),
-  )
+/** Return the normalized, directly-fetchable Amazon gallery URLs for an ASIN. */
+export async function fetchAmazonImageUrls(asin: string): Promise<string[]> {
+  if (!asin.trim()) return []
+  const { candidates } = await fetchAmazonStorefrontProduct(asin.trim())
+  return candidates.map(candidate => candidate.url)
 }
 
-async function candidatesForProduct(product: Product): Promise<{ candidates: ImageCandidate[]; aboutItem: string[]; error?: string }> {
+async function blobUrlsWithPrefix(prefix: string): Promise<string[]> {
+  const urls: string[] = []
+  let cursor: string | undefined
+  do {
+    const page = await list({ prefix, cursor, limit: 1000 })
+    urls.push(...page.blobs.map(blob => blob.url))
+    cursor = page.hasMore ? page.cursor : undefined
+  } while (cursor)
+  return urls
+}
+
+async function deleteBlobUrls(urls: string[]) {
+  for (let index = 0; index < urls.length; index += 1000) {
+    await del(urls.slice(index, index + 1000))
+  }
+}
+
+/** Remove every Blob in a product folder that is not currently referenced by the database. */
+export async function reconcileProductImageBlobs(
+  product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>,
+  keepUrls: string[],
+): Promise<number> {
+  const keep = new Set(keepUrls.filter(url => url.includes('.blob.vercel-storage.com/')))
+  const existing = await blobUrlsWithPrefix(blobPrefixForProduct(product))
+  const orphaned = existing.filter(url => !keep.has(url))
+  if (orphaned.length > 0) await deleteBlobUrls(orphaned)
+  return orphaned.length
+}
+
+/** Delete the complete product folder, including files orphaned from the DB. */
+export async function deleteProductImageBlobs(product: Pick<Product, 'handle' | 'title' | 'amazonSku' | 'asin'>): Promise<number> {
+  return reconcileProductImageBlobs(product, [])
+}
+
+function imageCandidateFromUrl(url: string): ImageCandidate | null {
+  try {
+    const parsed = new URL(url)
+    const extension = path.extname(parsed.pathname).toLowerCase()
+    const ext = /^\.(jpe?g|png|webp)$/i.test(extension) ? extension : '.jpg'
+    return { url, ext, sourceUrl: url }
+  } catch {
+    return null
+  }
+}
+
+async function candidatesForProduct(product: Product, imageUrls: string[]): Promise<{ candidates: ImageCandidate[]; aboutItem: string[]; error?: string }> {
+  if (imageUrls.length > 0) {
+    const candidates = imageUrls.map(imageCandidateFromUrl).filter((candidate): candidate is ImageCandidate => candidate !== null)
+    return candidates.length > 0
+      ? { candidates, aboutItem: [] }
+      : { candidates: [], aboutItem: [], error: 'The CSV contained no valid image URLs' }
+  }
   if (!product.asin) return { candidates: [], aboutItem: [], error: 'This product has no ASIN' }
 
   try {
@@ -182,14 +214,9 @@ async function candidatesForProduct(product: Product): Promise<{ candidates: Ima
   }
 }
 
-export async function fetchAndStoreProductImages(product: Product): Promise<ProductImageFetchResult> {
-  const dir = productImageFolderPath(product)
-  await fsp.mkdir(dir, { recursive: true })
-  await clearSavedGallery(dir)
-
-  const { candidates, aboutItem, error } = await candidatesForProduct(product)
+export async function fetchAndStoreProductImages(product: Product, imageUrls: string[] = []): Promise<ProductImageFetchResult> {
+  const { candidates, aboutItem, error } = await candidatesForProduct(product, imageUrls)
   if (candidates.length === 0) {
-    await fsp.rmdir(dir).catch(() => undefined)
     return {
       handle: product.handle,
       asin: product.asin,
@@ -201,28 +228,25 @@ export async function fetchAndStoreProductImages(product: Product): Promise<Prod
     }
   }
 
+  const prefix = blobPrefixForProduct(product)
   const images: string[] = []
-  const sourceUrls: string[] = []
-  for (const [index, candidate] of candidates.entries()) {
-    const body = await fetchImage(candidate.url)
-    if (!body) continue
+  try {
+    for (const [index, candidate] of candidates.entries()) {
+      const fetched = await fetchImage(candidate.url)
+      if (!fetched) continue
 
-    const fileName = `image-${String(index + 1).padStart(2, '0')}${candidate.ext}`
-    await fsp.writeFile(path.join(dir, fileName), body)
-    images.push(publicPathForFile(product, fileName))
-    sourceUrls.push(candidate.sourceUrl)
-
-    if (index === 0) {
-      await fsp.writeFile(path.join(dir, `main${candidate.ext}`), body)
+      const fileName = `image-${String(index + 1).padStart(2, '0')}${candidate.ext}`
+      const blob = await put(`${prefix}${fileName}`, fetched.body, {
+        access: 'private',
+        addRandomSuffix: true,
+        contentType: fetched.contentType,
+        cacheControlMaxAge: 60 * 60 * 24 * 30,
+      })
+      images.push(blob.url)
     }
-  }
-
-  if (sourceUrls.length > 0) {
-    await fsp.writeFile(path.join(dir, 'source-url.txt'), `${sourceUrls.join('\n')}\n`)
-  }
-
-  if (images.length === 0) {
-    await fsp.rmdir(dir).catch(() => undefined)
+  } catch (uploadError) {
+    await deleteBlobUrls(images).catch(() => undefined)
+    throw uploadError
   }
 
   return {
@@ -237,7 +261,7 @@ export async function fetchAndStoreProductImages(product: Product): Promise<Prod
 }
 
 export async function clearAllStoredProductImages(): Promise<number> {
-  const entries = await fsp.readdir(productImagesRoot).catch(() => [])
-  await Promise.all(entries.map(entry => fsp.rm(path.join(productImagesRoot, entry), { recursive: true, force: true })))
-  return entries.length
+  const urls = await blobUrlsWithPrefix(blobRoot)
+  await deleteBlobUrls(urls)
+  return urls.length
 }

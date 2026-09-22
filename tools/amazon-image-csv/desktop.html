@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Amazon Image CSV</title>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; }
+      body { max-width: 680px; margin: 0 auto; padding: 48px 20px; color: #26231f; background: #faf8f4; }
+      main { padding: 30px; border: 1px solid #ded7cc; border-radius: 14px; background: white; box-shadow: 0 8px 30px #34281712; }
+      h1 { margin: 0 0 8px; font: 600 28px Georgia, serif; }
+      p { color: #6b6257; line-height: 1.5; }
+      button { margin-top: 20px; border: 0; border-radius: 8px; padding: 13px 20px; color: white; background: #8d6b3f; font-weight: 600; cursor: pointer; }
+      button:disabled { opacity: .55; cursor: wait; }
+      #status { min-height: 24px; margin-top: 20px; color: #6b6257; }
+      .hint { font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Amazon image URL CSV</h1>
+      <p>Choose a Seller Central CSV. The app preserves its fields, fetches product-carousel images and About bullets, and saves an enriched manifest CSV for Blob import.</p>
+      <button id="run">Choose CSV and fetch images</button>
+      <div id="status" role="status">Ready.</div>
+      <p class="hint">Requires internet access. No Vercel credentials are stored or needed.</p>
+    </main>
+    <script>
+      const run = document.querySelector('#run')
+      const status = document.querySelector('#status')
+      let stopProgress = () => {}
+      stopProgress = window.amazonImageCsv.onProgress(({ completed, total }) => {
+        status.textContent = `Fetching product images: ${completed}/${total}`
+      })
+      run.addEventListener('click', async () => {
+        run.disabled = true
+        status.textContent = 'Choose your Seller Central CSV…'
+        try {
+          const result = await window.amazonImageCsv.processCsv()
+          if (result.canceled) {
+            status.textContent = 'Canceled.'
+          } else {
+            status.textContent = `Saved ${result.found} of ${result.total} products with images to ${result.path}`
+          }
+        } catch (error) {
+          status.textContent = error.message || 'Processing failed.'
+        } finally {
+          run.disabled = false
+        }
+      })
+      window.addEventListener('beforeunload', stopProgress)
+    </script>
+  </body>
+</html>
