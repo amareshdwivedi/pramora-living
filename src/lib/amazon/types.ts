@@ -14,4 +14,5 @@ export interface AmazonRecord {
   totalFees: number | null
   lastChanged: string | null        // ISO date "YYYY-MM-DD"
   imageUrls: string[]
+  aboutItem: string[]
 }

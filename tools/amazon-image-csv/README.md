@@ -23,7 +23,7 @@ To reduce or increase parallel requests:
 node index.mjs seller-central.csv image-urls.csv --concurrency 2
 ```
 
-The output contains `SKU`, `ASIN`, `Product Title`, one `Image URL N` column per image found, `Image Count`, and `Error`. Rows remain in the same order as the input CSV.
+The output keeps every column and value from the Seller Central CSV, replaces any existing `Image URL N` columns with one column per image found in Amazon's product carousel, and appends `About this item`, `Image Count`, and `Error`. The About column contains one bullet per line. Rows remain in the same order as the input CSV.
 
 The utility only discovers URLs. It does not upload files to Vercel Blob or modify products. The resulting manifest is intended for a separate production Blob-import step.
 

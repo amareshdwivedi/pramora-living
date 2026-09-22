@@ -82,18 +82,24 @@ function normalizedHeader(value) {
 export function parseSellerCentralCsv(text) {
   const rows = parseCsv(text)
   if (rows.length < 2) throw new Error('CSV must contain a header row and at least one product row')
-  const headers = rows[0].map(normalizedHeader)
+  const sourceHeaders = rows[0].map((header, index) => index === 0 ? header.replace(/^\uFEFF/, '') : header)
+  const headers = sourceHeaders.map(normalizedHeader)
   const column = (...names) => names.map(normalizedHeader).map(name => headers.indexOf(name)).find(index => index >= 0)
   const skuColumn = column('sku')
   const asinColumn = column('asin')
   const titleColumn = column('product title', 'title')
   if (skuColumn === undefined || asinColumn === undefined) throw new Error('CSV must contain SKU and ASIN columns')
 
-  return rows.slice(1).map(values => ({
-    sku: (values[skuColumn] ?? '').trim(),
-    asin: (values[asinColumn] ?? '').trim(),
-    title: (titleColumn === undefined ? '' : values[titleColumn] ?? '').trim(),
-  })).filter(row => row.sku)
+  const records = rows.slice(1).map(values => {
+    const source = Object.fromEntries(sourceHeaders.map((header, index) => [header, values[index] ?? '']))
+    return {
+      sku: (values[skuColumn] ?? '').trim(),
+      asin: (values[asinColumn] ?? '').trim(),
+      title: (titleColumn === undefined ? '' : values[titleColumn] ?? '').trim(),
+      source,
+    }
+  }).filter(row => row.sku)
+  return { headers: sourceHeaders, records }
 }
 
 function decodeUrl(value) {
@@ -123,7 +129,7 @@ function extractImageUrls(html) {
   const galleryEnd = galleryStart >= 0 ? html.indexOf('</ul>', galleryStart) : -1
   const galleryHtml = galleryStart >= 0 && galleryEnd > galleryStart
     ? html.slice(galleryStart, galleryEnd)
-    : html
+    : ''
   const urls = []
   const seen = new Set()
   const add = value => {
@@ -141,8 +147,47 @@ function extractImageUrls(html) {
   return urls
 }
 
-async function fetchImageUrls(asin, attempts = 3) {
-  if (!asin) return { urls: [], error: 'Missing ASIN' }
+function decodeHtmlText(value) {
+  return value
+    .replace(/\\u003c/gi, '<')
+    .replace(/\\u003e/gi, '>')
+    .replace(/\\u0026/gi, '&')
+    .replace(/\\u0022/gi, '"')
+    .replace(/\\u0027/gi, "'")
+    .replace(/<br\s*\/?\s*>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#x27;|&#39;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function extractAboutItem(html) {
+  const marker = /feature-bullets(?:_feature_div)?|id\s*=\s*["']feature-bullets["']/i.exec(html)
+  const section = marker ? html.slice(marker.index, marker.index + 100_000) : html
+  const listStart = section.search(/<ul\b/i)
+  const listEnd = listStart >= 0 ? section.search(/<\/ul\s*>/i) : -1
+  const listHtml = listStart >= 0 && listEnd > listStart ? section.slice(listStart, listEnd) : section
+  const values = [
+    ...listHtml.matchAll(/<span\b[^>]*\bclass\s*=\s*(["'])[^"']*\ba-list-item\b[^"']*\1[^>]*>([\s\S]*?)<\/span>/gi),
+  ].map(match => match[2])
+  if (values.length === 0) {
+    values.push(...[...listHtml.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li\s*>/gi)].map(match => match[1]))
+  }
+  return values
+    .map(decodeHtmlText)
+    .map(item => item.replace(/\s*(?:See more|Read more)\s*$/i, '').trim())
+    .filter((item, index, items) => item.length > 2 && items.indexOf(item) === index)
+}
+
+async function fetchProductDetails(asin, attempts = 3) {
+  if (!asin) return { urls: [], aboutItem: [], error: 'Missing ASIN' }
   let lastError = 'Amazon storefront did not expose product images'
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
@@ -156,15 +201,17 @@ async function fetchImageUrls(asin, attempts = 3) {
       if (!response.ok) {
         lastError = `Amazon returned HTTP ${response.status}`
       } else {
-        const urls = extractImageUrls(await response.text())
-        if (urls.length > 0) return { urls }
+        const html = await response.text()
+        const urls = extractImageUrls(html)
+        const aboutItem = extractAboutItem(html)
+        if (urls.length > 0 || aboutItem.length > 0) return { urls, aboutItem }
       }
     } catch (error) {
       lastError = error instanceof Error ? error.message : 'Amazon request failed'
     }
     if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, attempt * 1200))
   }
-  return { urls: [], error: lastError }
+  return { urls: [], aboutItem: [], error: lastError }
 }
 
 function csvCell(value) {
@@ -172,16 +219,17 @@ function csvCell(value) {
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text
 }
 
-export function toManifestCsv(rows) {
+export function toManifestCsv(sourceHeaders, rows) {
   const maxImages = rows.reduce((max, row) => Math.max(max, row.urls.length), 0)
-  const headers = ['SKU', 'ASIN', 'Product Title', ...Array.from({ length: maxImages }, (_, index) => `Image URL ${index + 1}`), 'Image Count', 'Error']
+  const generatedHeaders = new Set(['image count', 'error', 'about this item'])
+  const preservedHeaders = sourceHeaders.filter(header => !/^image\s+url\s+\d+$/i.test(header) && !generatedHeaders.has(normalizedHeader(header)))
+  const headers = [...preservedHeaders, ...Array.from({ length: maxImages }, (_, index) => `Image URL ${index + 1}`), 'About this item', 'Image Count', 'Error']
   const output = [headers.map(csvCell).join(',')]
   for (const row of rows) {
     output.push([
-      row.sku,
-      row.asin,
-      row.title,
+      ...preservedHeaders.map(header => row.source[header] ?? ''),
       ...Array.from({ length: maxImages }, (_, index) => row.urls[index] ?? ''),
+      row.aboutItem.join('\n'),
       row.urls.length,
       row.error ?? '',
     ].map(csvCell).join(','))
@@ -190,7 +238,7 @@ export function toManifestCsv(rows) {
 }
 
 export async function generateManifest(text, concurrency = DEFAULT_CONCURRENCY, onProgress = () => {}) {
-  const records = parseSellerCentralCsv(text)
+  const { headers, records } = parseSellerCentralCsv(text)
   const results = new Array(records.length)
   let next = 0
   let completed = 0
@@ -200,7 +248,7 @@ export async function generateManifest(text, concurrency = DEFAULT_CONCURRENCY, 
       const index = next++
       if (index >= records.length) return
       const record = records[index]
-      const result = await fetchImageUrls(record.asin)
+      const result = await fetchProductDetails(record.asin)
       results[index] = { ...record, ...result }
       completed += 1
       onProgress(completed, records.length)
@@ -208,7 +256,7 @@ export async function generateManifest(text, concurrency = DEFAULT_CONCURRENCY, 
   }
 
   await Promise.all(Array.from({ length: Math.min(concurrency, records.length) }, () => worker()))
-  return { records, results, csv: toManifestCsv(results) }
+  return { headers, records, results, csv: toManifestCsv(headers, results) }
 }
 
 async function main() {

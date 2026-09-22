@@ -65,6 +65,11 @@ function mediaFileNameFromUrl(url: string): string | null {
 
 function decodeHtmlText(value: string): string {
   return value
+    .replace(/\\u003c/gi, '<')
+    .replace(/\\u003e/gi, '>')
+    .replace(/\\u0026/gi, '&')
+    .replace(/\\u0022/gi, '"')
+    .replace(/\\u0027/gi, "'")
     .replace(/<br\s*\/?\s*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
@@ -74,20 +79,24 @@ function decodeHtmlText(value: string): string {
     .replace(/&lt;/gi, '<')
     .replace(/&gt;/gi, '>')
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([\da-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
     .replace(/\s+/g, ' ')
     .trim()
 }
 
 function parseAboutItem(html: string): string[] {
-  const start = html.indexOf('feature-bullets_feature_div')
-  if (start < 0) return []
-  const listStart = html.indexOf('<ul', start)
-  const listEnd = listStart >= 0 ? html.indexOf('</ul>', listStart) : -1
-  if (listStart < 0 || listEnd < listStart) return []
-  const listHtml = html.slice(listStart, listEnd)
-  return [...listHtml.matchAll(/<li[^>]*>[\s\S]*?<span[^>]*class="[^"]*a-list-item[^"]*"[^>]*>([\s\S]*?)<\/span>/gi)]
-    .map(match => decodeHtmlText(match[1]))
-    .filter((item, index, items) => item.length > 0 && items.indexOf(item) === index)
+  const marker = /feature-bullets(?:_feature_div)?|id\s*=\s*["']feature-bullets["']/i.exec(html)
+  const section = marker ? html.slice(marker.index, marker.index + 100_000) : html
+  const listStart = section.search(/<ul\b/i)
+  const listEnd = listStart >= 0 ? section.search(/<\/ul\s*>/i) : -1
+  const listHtml = listStart >= 0 && listEnd > listStart ? section.slice(listStart, listEnd) : section
+  const values = [...listHtml.matchAll(/<span\b[^>]*\bclass\s*=\s*(["'])[^"']*\ba-list-item\b[^"']*\1[^>]*>([\s\S]*?)<\/span>/gi)]
+    .map(match => match[2])
+  if (values.length === 0) values.push(...[...listHtml.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li\s*>/gi)].map(match => match[1]))
+  return values
+    .map(decodeHtmlText)
+    .map(item => item.replace(/\s*(?:See more|Read more)\s*$/i, '').trim())
+    .filter((item, index, items) => item.length > 2 && items.indexOf(item) === index)
 }
 
 async function fetchAmazonStorefrontProduct(asin: string): Promise<{ candidates: ImageCandidate[]; aboutItem: string[] }> {

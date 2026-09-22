@@ -48,6 +48,10 @@ export function parseAmazonCsv(text: string): AmazonRecord[] {
       .filter(([header, value]) => /^image\s+url\s+\d+$/i.test(header) && Boolean(value?.trim()))
       .sort(([a], [b]) => Number(a.match(/\d+/)?.[0] ?? 0) - Number(b.match(/\d+/)?.[0] ?? 0))
       .map(([, value]) => value.trim())
+    const aboutItem = (row['About this item'] ?? '')
+      .split(/\r?\n|•/)
+      .map(value => value.replace(/^\s*[-*]\s*/, '').trim())
+      .filter(Boolean)
     records.push({
       amazonSku,
       asin: clean(row['ASIN']),
@@ -59,6 +63,7 @@ export function parseAmazonCsv(text: string): AmazonRecord[] {
       totalFees: parseMoney(row['Total Fees']),
       lastChanged: parseDate(row['Last Changed']),
       imageUrls,
+      aboutItem,
     })
   }
   return records

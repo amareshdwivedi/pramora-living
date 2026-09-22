@@ -53,10 +53,10 @@ export async function POST(req: NextRequest) {
               const result = await fetchAndStoreProductImages(product, record?.imageUrls ?? [])
               await updateProduct(product.handle, {
                 ...(result.images[0] ? { image: result.images[0], images: result.images } : {}),
-                ...(result.aboutItem.length > 0 ? { aboutItem: result.aboutItem } : {}),
+                ...(result.aboutItem.length > 0 ? { aboutItem: result.aboutItem } : record?.aboutItem?.length ? { aboutItem: record.aboutItem } : {}),
               })
               imageResults.push({ handle: product.handle, images: result.images.length, ...(result.error ? { error: result.error } : {}) })
-              send({ type: 'item', stage: 'storefront', status: result.images.length > 0 || result.aboutItem.length > 0 ? 'success' : 'error', handle: product.handle, title: product.title, amazonSku: product.amazonSku ?? undefined, asin: product.asin, ...(result.error ? { message: result.error } : {}) })
+              send({ type: 'item', stage: 'storefront', status: result.images.length > 0 || result.aboutItem.length > 0 || Boolean(record?.aboutItem?.length) ? 'success' : 'error', handle: product.handle, title: product.title, amazonSku: product.amazonSku ?? undefined, asin: product.asin, ...(result.error ? { message: result.error } : {}) })
             } catch (error) {
               const message = error instanceof Error ? error.message : 'Amazon storefront fetch failed'
               imageResults.push({ handle: product.handle, images: 0, error: message })

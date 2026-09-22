@@ -97,6 +97,7 @@ export async function runSync(records: AmazonRecord[], source: 'csv', onRecord?:
           totalFees: str(rec.totalFees),
           amazonLastChanged: rec.lastChanged,
           amazonSyncedAt: now,
+          ...(rec.aboutItem.length > 0 ? { aboutItem: rec.aboutItem } : {}),
           // storefront price follows Amazon (only when Amazon has a price)
           ...(rec.currentPrice != null ? { price: str(rec.currentPrice)! } : {}),
           updatedAt: now,
@@ -136,6 +137,7 @@ export async function runSync(records: AmazonRecord[], source: 'csv', onRecord?:
       amazonLastChanged: rec.lastChanged,
       amazonSyncedAt: now,
       image: '',
+      aboutItem: rec.aboutItem,
     })
     created++
     const change = { amazonSku: rec.amazonSku, asin: rec.asin, handle, title: rec.title, kind: 'created' as const, fields: [] }
