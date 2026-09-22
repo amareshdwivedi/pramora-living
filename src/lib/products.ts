@@ -14,4 +14,5 @@ export {
   reconcileAllStoredProductImages,
   deleteProduct,
   publishAllProducts,
+  publishProducts,
 } from './db/products.repo'

@@ -1,4 +1,4 @@
-import { eq, asc } from 'drizzle-orm'
+import { eq, asc, inArray, and } from 'drizzle-orm'
 import { del, list } from '@vercel/blob'
 import { db } from './client'
 import { products, type ProductRow, type NewProductRow } from './schema'
@@ -146,11 +146,18 @@ export async function deleteProduct(handle: string): Promise<boolean> {
   return deleted.length > 0
 }
 
-export async function publishAllProducts(): Promise<Product[]> {
+export async function publishProducts(handles?: string[]): Promise<Product[]> {
+  const filter = handles && handles.length > 0
+    ? and(eq(products.status, 'draft'), inArray(products.handle, handles))
+    : eq(products.status, 'draft')
   const rows = await db
     .update(products)
     .set({ status: 'active', updatedAt: new Date() })
-    .where(eq(products.status, 'draft'))
+    .where(filter)
     .returning()
   return rows.map(toProduct)
+}
+
+export async function publishAllProducts(): Promise<Product[]> {
+  return publishProducts()
 }
