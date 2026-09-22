@@ -6,9 +6,9 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Pramora Living — Artisan Home Décor',
-  description: 'Curated luxury sculptures and artisan home décor that bring elegance and culture to your living space.',
-  keywords: 'home decor, luxury sculptures, artisan, India, gifting, Pramora Living',
+  title: 'Pramora Living — Artisan-Made Pieces',
+  description: 'Thoughtfully handcrafted pieces made by skilled artisans using natural materials and conscious design.',
+  keywords: 'artisan-made, handcrafted, natural materials, conscious design, India, gifting, Pramora Living',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

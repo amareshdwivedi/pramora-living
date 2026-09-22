@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import type { Product } from '@/lib/types'
 import { ProductImageCarousel } from './ProductImageCarousel'
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, variant = 'grid' }: { product: Product; variant?: 'grid' | 'list' }) {
   const router = useRouter()
   const discount = Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
 
   return (
-    <div className="group block card hover:shadow-lg cursor-pointer" role="link" tabIndex={0} onClick={() => router.push(`/products/${product.handle}`)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') router.push(`/products/${product.handle}`) }}>
-      <div className="relative">
+    <div className={`group block card hover:shadow-lg cursor-pointer ${variant === 'list' ? 'sm:flex sm:items-stretch' : ''}`} role="link" tabIndex={0} onClick={() => router.push(`/products/${product.handle}`)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') router.push(`/products/${product.handle}`) }}>
+      <div className={`relative ${variant === 'list' ? 'sm:w-56 sm:shrink-0' : ''}`}>
         <ProductImageCarousel images={product.images?.length ? product.images : product.image ? [product.image] : []} alt={product.title} className="product-img-wrap" />
         {discount > 0 && (
           <span className="absolute top-3 left-3 bg-gold-500 text-white text-xs font-semibold px-2 py-0.5">
@@ -21,7 +21,7 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
 
       {/* Info */}
-      <Link href={`/products/${product.handle}`} onClick={event => event.stopPropagation()} className="block p-4">
+      <Link href={`/products/${product.handle}`} onClick={event => event.stopPropagation()} className={`block p-4 ${variant === 'list' ? 'sm:flex-1 sm:self-center' : ''}`}>
         <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--gold)' }}>{product.type}</p>
         <h3 className="font-serif text-lg font-medium mb-2 group-hover:text-gold-600 transition-colors" style={{ color: 'var(--text)' }}>
           {product.title}

@@ -12,7 +12,7 @@ export function whatsappUrl(message: string): string {
 }
 
 /** Contact inbox + a prefilled mailto link builder. */
-export const CONTACT_EMAIL = 'pramoraliving@gmail.com'
+export const CONTACT_EMAIL = 'support@pramoraliving.com'
 export function mailtoUrl(subject: string, body: string): string {
   return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }

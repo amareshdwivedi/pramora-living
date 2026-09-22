@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react'
 import { MapPin, Phone, Mail, MessageCircle } from 'lucide-react'
 import { FaWhatsapp } from '@/components/BrandIcons'
-import { whatsappUrl, PHONE_DISPLAY } from '@/lib/contact'
+import { whatsappUrl, PHONE_DISPLAY, CONTACT_EMAIL } from '@/lib/contact'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
@@ -59,19 +59,19 @@ export default function ContactPage() {
         <h1 className="section-title">Contact Us</h1>
         <div className="divider mx-auto" />
         <p className="section-subtitle mx-auto text-center">
-          Have a question or want to place a custom order? We'd love to hear from you.
+          Have a question about our craftsmanship, materials, or collections? We'd love to help.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-5 gap-12">
         {/* Info */}
         <div className="lg:col-span-2">
-          <h2 className="font-serif text-2xl font-medium mb-8" style={{ color: 'var(--text)' }}>Let's Connect</h2>
+          <h2 className="font-serif text-2xl font-medium mb-8" style={{ color: 'var(--text)' }}>Speak With Our Team</h2>
           <div className="space-y-6">
             {[
               { icon: MapPin, label: 'Address', value: 'Brigade Cornerstone Utopia, Gunjur Village\nVarthur, Bengaluru — 560087' },
               { icon: Phone, label: 'Phone', value: PHONE_DISPLAY },
-              { icon: Mail, label: 'Email', value: 'pramoraliving@gmail.com' },
+              { icon: Mail, label: 'Email', value: CONTACT_EMAIL },
               { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us directly' },
             ].map(item => (
               <div key={item.label} className="flex gap-4">

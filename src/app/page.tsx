@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
 import { whatsappUrl } from '@/lib/contact'
 import { ProductImageCarousel } from '@/components/ProductImageCarousel'
+import { CategoryHeroCarousel } from '@/components/CategoryHeroCarousel'
 
 export default async function HomePage() {
   const products = (await getProducts()).filter(p => p.status === 'active')
@@ -23,7 +24,7 @@ export default async function HomePage() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 grid lg:grid-cols-2 gap-12 items-center">
           <div className="animate-fade-in">
             <p className="text-xs uppercase tracking-[0.3em] mb-4" style={{ color: 'var(--gold)' }}>
-              Artisan Home Décor
+              Artisan-Made Pieces
             </p>
             <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-medium leading-tight mb-6" style={{ color: 'var(--text)' }}>
               Where Art<br />
@@ -31,7 +32,7 @@ export default async function HomePage() {
               Home
             </h1>
             <p className="text-base leading-relaxed mb-8 max-w-md" style={{ color: 'var(--text-2)' }}>
-              Discover handcrafted sculptures and luxury décor that transform every corner of your home into a statement of refined taste.
+              Discover thoughtfully handcrafted pieces made by skilled artisans, using natural materials and conscious design to bring warmth, character, and meaning into your home.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/products" className="btn-gold">
@@ -43,24 +44,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Hero product grid */}
-          <div className="hidden lg:grid grid-cols-2 gap-3 animate-slide-up">
-            {products.slice(0, 4).map((p, i) => (
-              <Link key={p.handle} href={`/products/${p.handle}`}
-                className={`group relative overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
-                style={{ aspectRatio: i === 0 ? '3/4' : '1/1' }}
-              >
-                <ProductImageCarousel
-                  images={p.images?.length ? p.images : p.image ? [p.image] : []}
-                  alt={p.title}
-                  frameClassName="h-full"
-                  showNavigation={false}
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <span className="absolute bottom-3 left-3 z-20 text-white text-sm font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">{p.title}</span>
-              </Link>
-            ))}
-          </div>
+          <CategoryHeroCarousel products={products} />
         </div>
       </section>
 
@@ -121,10 +105,10 @@ export default async function HomePage() {
             <h2 className="section-title">Crafted with<br />Intention</h2>
             <div className="divider" />
             <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--text-2)' }}>
-              Pramora Living was born from a passion for preserving India's rich artistic heritage while bringing it into contemporary living spaces.
+              We bring together artisan craftsmanship, natural materials, and responsible design to create pieces that feel beautiful, meaningful, and made to last.
             </p>
             <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-2)' }}>
-              Every sculpture in our collection is a conversation between tradition and modernity — handcrafted by skilled artisans and curated for homes that appreciate the beauty of meaningful objects.
+              Each piece is thoughtfully chosen for homes that value natural character, conscious living, and the enduring beauty of work made by hand.
             </p>
             <Link href="/contact" className="btn-gold">
               Connect With Us <ArrowRight size={16} />

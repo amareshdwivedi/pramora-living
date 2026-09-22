@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from './BrandIcons'
-import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY } from '@/lib/contact'
+import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY, CONTACT_EMAIL } from '@/lib/contact'
 
 const SOCIAL = [
   { label: 'Instagram', href: 'https://instagram.com/pramoraliving', Icon: FaInstagram },
@@ -22,9 +22,9 @@ export function Footer() {
         {/* Brand */}
         <div className="lg:col-span-1">
           <h3 className="font-serif text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>Pramora Living</h3>
-          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan Home Décor</p>
+          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan-Made Pieces</p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
-            Curated luxury sculptures and home décor pieces that bring elegance, culture, and artistry into your living space.
+            Artisan-crafted pieces made with natural character, thoughtful design, and a commitment to more conscious living.
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export function Footer() {
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>
             📍 Bengaluru, Karnataka, India<br />
             📞 {PHONE_DISPLAY}<br />
-            ✉ pramoraliving@gmail.com
+            ✉ {CONTACT_EMAIL}
           </p>
         </div>
       </div>

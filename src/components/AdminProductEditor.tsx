@@ -28,6 +28,7 @@ export default function AdminProductEditor() {
   const [selectedImageUrls, setSelectedImageUrls] = useState<string[]>([])
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imageUrlsInput, setImageUrlsInput] = useState('')
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null)
   const imageFilesRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -44,6 +45,14 @@ export default function AdminProductEditor() {
   const setField = <K extends keyof typeof form>(key: K, value: typeof form[K]) => setForm(previous => ({ ...previous, [key]: value }))
 
   const toggleImage = (url: string) => setSelectedImageUrls(previous => previous.includes(url) ? previous.filter(item => item !== url) : [...previous, url])
+
+  const reorderImage = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return
+    const ordered = [...imageList(form)]
+    const [moved] = ordered.splice(fromIndex, 1)
+    ordered.splice(toIndex, 0, moved)
+    setForm(previous => ({ ...previous, image: ordered[0] ?? '', images: ordered }))
+  }
 
   const uploadImageChanges = async (handle: string) => {
     const urls = imageUrlsInput.split(/\r?\n/).map(value => value.trim()).filter(Boolean)
@@ -112,9 +121,9 @@ export default function AdminProductEditor() {
         </section>
 
         <section className="border-t pt-8" style={{ borderColor: 'var(--border)' }}>
-          <div className="flex items-center justify-between gap-3 mb-5"><div><h2 className="font-serif text-xl font-medium" style={{ color: 'var(--text)' }}>Product images</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Select multiple images to remove, or add files and URLs in bulk.</p></div><ImageIcon size={22} style={{ color: 'var(--gold)' }} /></div>
+          <div className="flex items-center justify-between gap-3 mb-5"><div><h2 className="font-serif text-xl font-medium" style={{ color: 'var(--text)' }}>Product images</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Drag images to reorder. The first image is the main storefront image. Select multiple images to remove, or add files and URLs in bulk.</p></div><ImageIcon size={22} style={{ color: 'var(--gold)' }} /></div>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
-            {images.map((url, index) => <label key={`${url}-${index}`} className={`relative aspect-square border cursor-pointer overflow-hidden ${selectedImageUrls.includes(url) ? 'ring-2 ring-red-400' : ''}`} style={{ borderColor: selectedImageUrls.includes(url) ? '#ef4444' : 'var(--border)', backgroundColor: 'var(--bg-2)' }}><Image src={url} alt={`${form.title} image ${index + 1}`} fill className="object-contain p-2" /><span className="absolute top-2 left-2 rounded bg-white/90 p-1 shadow"><input type="checkbox" checked={selectedImageUrls.includes(url)} onChange={() => toggleImage(url)} aria-label={`Select image ${index + 1} for deletion`} /></span><span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1">{index + 1}</span></label>)}
+            {images.map((url, index) => <label key={`${url}-${index}`} draggable onDragStart={() => setDraggedImageIndex(index)} onDragOver={event => event.preventDefault()} onDrop={() => { if (draggedImageIndex !== null) reorderImage(draggedImageIndex, index); setDraggedImageIndex(null) }} onDragEnd={() => setDraggedImageIndex(null)} className={`relative aspect-square border cursor-grab overflow-hidden ${selectedImageUrls.includes(url) ? 'ring-2 ring-red-400' : ''} ${draggedImageIndex === index ? 'opacity-50' : ''}`} style={{ borderColor: selectedImageUrls.includes(url) ? '#ef4444' : 'var(--border)', backgroundColor: 'var(--bg-2)' }} title="Drag to reorder"><Image src={url} alt={`${form.title} image ${index + 1}`} fill className="object-contain p-2" /><span className="absolute top-2 left-2 rounded bg-white/90 p-1 shadow"><input type="checkbox" checked={selectedImageUrls.includes(url)} onChange={() => toggleImage(url)} onClick={event => event.stopPropagation()} aria-label={`Select image ${index + 1} for deletion`} /></span><span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1">{index === 0 ? 'Main' : index + 1}</span></label>)}
             {images.length === 0 && <div className="col-span-full border border-dashed p-8 text-center text-sm" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>No images yet.</div>}
           </div>
           <div className="grid md:grid-cols-2 gap-5">
