@@ -6,10 +6,15 @@ import type { Product } from '../types'
 const num = (v: string | null | undefined): number => (v == null ? 0 : Number(v))
 const numOrNull = (v: string | null | undefined): number | null => (v == null ? null : Number(v))
 
+function storefrontImageUrl(url: string): string {
+  if (!url || !url.includes('.blob.vercel-storage.com/')) return url
+  return `/api/product-image?url=${encodeURIComponent(url)}`
+}
+
 /** Map a DB row to the Product shape used across the app. */
 function toProduct(r: ProductRow): Product {
-  const images = (r.images ?? []).filter(Boolean)
-  const image = images[0] ?? r.image
+  const images = (r.images ?? []).filter(Boolean).map(storefrontImageUrl)
+  const image = images[0] ?? storefrontImageUrl(r.image)
 
   return {
     id: r.id,

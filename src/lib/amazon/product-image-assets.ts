@@ -212,7 +212,7 @@ export async function fetchAndStoreProductImages(product: Product, imageUrls: st
 
       const fileName = `image-${String(index + 1).padStart(2, '0')}${candidate.ext}`
       const blob = await put(`${prefix}${fileName}`, fetched.body, {
-        access: 'public',
+        access: 'private',
         addRandomSuffix: true,
         contentType: fetched.contentType,
         cacheControlMaxAge: 60 * 60 * 24 * 30,
