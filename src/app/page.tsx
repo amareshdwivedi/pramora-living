@@ -1,10 +1,10 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Star, Truck, Shield, Package } from 'lucide-react'
 import { getProducts } from '@/lib/products'
 import { ProductCard } from '@/components/ProductCard'
 import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
 import { whatsappUrl } from '@/lib/contact'
+import { ProductImageCarousel } from '@/components/ProductImageCarousel'
 
 export default async function HomePage() {
   const products = (await getProducts()).filter(p => p.status === 'active')
@@ -46,14 +46,19 @@ export default async function HomePage() {
           {/* Hero product grid */}
           <div className="hidden lg:grid grid-cols-2 gap-3 animate-slide-up">
             {products.slice(0, 4).map((p, i) => (
-              <Link key={p.handle} href={`/products/${p.handle}`}
+              <div key={p.handle}
                 className={`relative overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
                 style={{ aspectRatio: i === 0 ? '3/4' : '1/1' }}
               >
-                <Image src={p.image} alt={p.title} fill className="object-cover hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <span className="absolute bottom-3 left-3 text-white font-serif text-sm font-medium">{p.title}</span>
-              </Link>
+                <ProductImageCarousel
+                  images={p.images?.length ? p.images : p.image ? [p.image] : []}
+                  alt={p.title}
+                  frameClassName="h-full"
+                  showNavigation={false}
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <Link href={`/products/${p.handle}`} className="absolute bottom-3 left-3 z-20 text-white font-serif text-sm font-medium">{p.title}</Link>
+              </div>
             ))}
           </div>
         </div>
@@ -103,7 +108,10 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 gap-3">
             {products.slice(4, 8).map(p => (
               <div key={p.handle} className="relative aspect-square overflow-hidden">
-                <Image src={p.image} alt={p.title} fill className="object-cover" />
+                <ProductImageCarousel
+                  images={p.images?.length ? p.images : p.image ? [p.image] : []}
+                  alt={p.title}
+                />
               </div>
             ))}
           </div>

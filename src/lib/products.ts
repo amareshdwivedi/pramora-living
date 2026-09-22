@@ -11,4 +11,5 @@ export {
   createProduct,
   updateProduct,
   deleteProduct,
+  publishAllProducts,
 } from './db/products.repo'

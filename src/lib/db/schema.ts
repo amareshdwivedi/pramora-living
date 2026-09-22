@@ -4,7 +4,7 @@ import { pgTable, uuid, text, numeric, date, timestamp, integer, jsonb } from 'd
  * products
  *
  * Two clearly-separated groups of columns:
- *   - AMAZON-OWNED  → overwritten by every Amazon sync (price, inventory, status…)
+ *   - AMAZON-OWNED  → overwritten by every Amazon sync (price, inventory, status, images, bullets…)
  *   - PRAMORA-CURATED → hand-written content the sync must NEVER touch
  *
  * Matching keys: amazon_sku / asin link a row to its Amazon listing,
@@ -26,6 +26,7 @@ export const products = pgTable('products', {
   totalFees: numeric('total_fees', { precision: 10, scale: 2 }),
   amazonLastChanged: date('amazon_last_changed'),
   amazonSyncedAt: timestamp('amazon_synced_at', { withTimezone: true }),
+  aboutItem: jsonb('about_item').$type<string[]>().notNull().default([]),
 
   // ---- PRAMORA-CURATED (never touched by sync) ----
   sku: text('sku'),                                   // legacy/display SKU, e.g. "PL-001"
@@ -51,7 +52,7 @@ export const products = pgTable('products', {
  */
 export const syncRuns = pgTable('sync_runs', {
   id: uuid('id').primaryKey().defaultRandom(),
-  source: text('source').notNull(),                  // "csv" | "sp-api"
+  source: text('source').notNull(),                  // "csv"
   startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
   finishedAt: timestamp('finished_at', { withTimezone: true }),
   itemsCreated: integer('items_created').notNull().default(0),

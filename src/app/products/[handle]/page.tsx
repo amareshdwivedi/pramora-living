@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { getProduct, getProducts } from '@/lib/products'
 import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
 import { amazonProductUrl } from '@/lib/amazon/url'
 import { whatsappUrl, SITE_URL } from '@/lib/contact'
+import { ProductImageCarousel } from '@/components/ProductImageCarousel'
 
 // Render product pages on demand and keep them fresh; new items created by an
 // Amazon sync are served without a rebuild.
@@ -22,6 +22,7 @@ export default async function ProductPage({ params }: { params: { handle: string
 
   const discount = Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
   const amazonUrl = amazonProductUrl(product)
+  const images = product.images?.length ? product.images : product.image ? [product.image] : []
   const whatsappHelpUrl = whatsappUrl(
     `Hi Pramora Living I need help regarding the ${product.title} ${SITE_URL}/products/${product.handle}`,
   )
@@ -38,28 +39,15 @@ export default async function ProductPage({ params }: { params: { handle: string
 
       <div className="grid lg:grid-cols-2 gap-12 items-start">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden" style={{ backgroundColor: 'var(--bg-2)' }}>
-          {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--text-2)' }}>
-              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-              </svg>
-            </div>
-          )}
-          {discount > 0 && (
-            <span className="absolute top-4 left-4 bg-gold-500 text-white text-xs font-bold px-3 py-1">
-              {discount}% OFF
-            </span>
-          )}
+        <div>
+          <div className="relative">
+            <ProductImageCarousel images={images} alt={product.title} showThumbnails enableLightbox />
+            {discount > 0 && (
+              <span className="absolute top-4 left-4 bg-gold-500 text-white text-xs font-bold px-3 py-1">
+                {discount}% OFF
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Details */}
@@ -92,6 +80,15 @@ export default async function ProductPage({ params }: { params: { handle: string
             style={{ color: 'var(--text-2)' }}
             dangerouslySetInnerHTML={{ __html: product.description }}
           />
+
+          {product.aboutItem.length > 0 && (
+            <section className="mb-7" aria-labelledby="about-this-item">
+              <h2 id="about-this-item" className="font-serif text-xl font-medium mb-3" style={{ color: 'var(--text)' }}>About this item</h2>
+              <ul className="list-disc pl-5 space-y-2 text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
+                {product.aboutItem.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+              </ul>
+            </section>
+          )}
 
           {/* SKU */}
           <p className="text-xs mb-6" style={{ color: 'var(--text-2)' }}>
