@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
 import { whatsappUrl } from '@/lib/contact'
 import { ProductImageCarousel } from '@/components/ProductImageCarousel'
+import { CategoryHeroCarousel } from '@/components/CategoryHeroCarousel'
 
 export default async function HomePage() {
   const products = (await getProducts()).filter(p => p.status === 'active')
@@ -43,24 +44,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Hero product grid */}
-          <div className="hidden lg:grid grid-cols-2 gap-3 animate-slide-up">
-            {products.slice(0, 4).map((p, i) => (
-              <Link key={p.handle} href={`/products/${p.handle}`}
-                className={`group relative overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
-                style={{ aspectRatio: i === 0 ? '3/4' : '1/1' }}
-              >
-                <ProductImageCarousel
-                  images={p.images?.length ? p.images : p.image ? [p.image] : []}
-                  alt={p.title}
-                  frameClassName="h-full"
-                  showNavigation={false}
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <span className="absolute bottom-3 left-3 z-20 text-white text-sm font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">{p.title}</span>
-              </Link>
-            ))}
-          </div>
+          <CategoryHeroCarousel products={products} />
         </div>
       </section>
 

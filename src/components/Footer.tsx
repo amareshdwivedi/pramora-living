@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from './BrandIcons'
-import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY } from '@/lib/contact'
+import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY, CONTACT_EMAIL } from '@/lib/contact'
 
 const SOCIAL = [
   { label: 'Instagram', href: 'https://instagram.com/pramoraliving', Icon: FaInstagram },
@@ -88,7 +88,7 @@ export function Footer() {
           <p className="text-xs leading-relaxed" style={{ color: 'var(--text-2)' }}>
             📍 Bengaluru, Karnataka, India<br />
             📞 {PHONE_DISPLAY}<br />
-            ✉ pramoraliving@gmail.com
+            ✉ {CONTACT_EMAIL}
           </p>
         </div>
       </div>

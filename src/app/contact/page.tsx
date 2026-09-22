@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react'
 import { MapPin, Phone, Mail, MessageCircle } from 'lucide-react'
 import { FaWhatsapp } from '@/components/BrandIcons'
-import { whatsappUrl, PHONE_DISPLAY } from '@/lib/contact'
+import { whatsappUrl, PHONE_DISPLAY, CONTACT_EMAIL } from '@/lib/contact'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' })
@@ -71,7 +71,7 @@ export default function ContactPage() {
             {[
               { icon: MapPin, label: 'Address', value: 'Brigade Cornerstone Utopia, Gunjur Village\nVarthur, Bengaluru — 560087' },
               { icon: Phone, label: 'Phone', value: PHONE_DISPLAY },
-              { icon: Mail, label: 'Email', value: 'pramoraliving@gmail.com' },
+              { icon: Mail, label: 'Email', value: CONTACT_EMAIL },
               { icon: MessageCircle, label: 'WhatsApp', value: 'Chat with us directly' },
             ].map(item => (
               <div key={item.label} className="flex gap-4">
