@@ -34,10 +34,10 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center" aria-label="Pramora Living — Home">
           <Image
-            src="/Pramora_logo.png"
-            alt="Pramora Living — Home Decor & Kitchen Essentials"
-            width={1254}
-            height={1254}
+            src="/Pramora-Logo.png"
+            alt="Pramora"
+            width={1536}
+            height={1024}
             priority
             className="h-16 w-auto md:h-20"
           />

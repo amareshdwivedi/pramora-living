@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from './BrandIcons'
 import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY, CONTACT_EMAIL } from '@/lib/contact'
 
@@ -21,7 +22,15 @@ export function Footer() {
 
         {/* Brand */}
         <div className="lg:col-span-1">
-          <h3 className="font-serif text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>Pramora Living</h3>
+          <Link href="/" className="inline-flex items-center mb-3" aria-label="Pramora Living — Home">
+            <Image
+              src="/Pramora-Logo.png"
+              alt="Pramora"
+              width={1536}
+              height={1024}
+              className="h-24 w-auto object-contain"
+            />
+          </Link>
           <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan-Made Pieces</p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
             Artisan-crafted pieces made with natural character, thoughtful design, and a commitment to more conscious living.
