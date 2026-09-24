@@ -129,7 +129,7 @@ export default function AdminLayoutPage() {
       {([{ id: 'catalog', label: 'All Products Order' }, { id: 'home', label: 'Homepage' }, { id: 'hero', label: 'Hero Banner' }] as const).map(item => <button key={item.id} type="button" aria-pressed={tab === item.id} onClick={() => setTab(item.id)} className="px-4 py-3 text-sm font-medium border-b-2" style={{ borderColor: tab === item.id ? 'var(--gold)' : 'transparent', color: tab === item.id ? 'var(--gold)' : 'var(--text-2)' }}>{item.label}</button>)}
     </div>
 
-    {tab === 'catalog' && <section aria-label="All Products Order">
+    {tab === 'catalog' && <section className="admin-panel" aria-label="All Products Order">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-5"><div><h2 className="font-serif text-2xl">All Products Order</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Drag rows to reorder. Move buttons also work on touchscreens and keyboards. Draft products appear after they are published.</p></div>{sectionControls('catalogOrder', 'Save Catalog Order')}</div>
       <ProductOrderList ids={draft.catalogOrder} products={products} onChange={ids => setSection('catalogOrder', ids)} />
       <div className="flex justify-end mt-5">{sectionButton('catalogOrder', 'Save Catalog Order')}</div>
@@ -138,7 +138,7 @@ export default function AdminLayoutPage() {
     {tab === 'home' && <div className="space-y-12">
       {([{ section: 'featuredOrder', title: 'Featured Pieces', max: 6 }, { section: 'storyOrder', title: 'Story Images', max: 4 }] as const).map(config => {
         const ids = draft[config.section]
-        return <section key={config.section} aria-label={config.title}>
+        return <section key={config.section} className="admin-panel" aria-label={config.title}>
           <div className="flex flex-wrap justify-between items-center gap-4 mb-5"><div><h2 className="font-serif text-2xl">{config.title}</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Choose and reorder up to {config.max} active products.</p></div>{sectionControls(config.section, `Save ${config.title}`)}</div>
           <ProductOrderList ids={ids} products={products} onChange={next => setSection(config.section, next)} onRemove={id => setSection(config.section, ids.filter(item => item !== id))} minLength={1} />
           {ids.length < config.max && <div className="flex items-center gap-2 mt-4"><Plus size={16} /><label htmlFor={`add-${config.section}`} className="sr-only">Add a product to {config.title}</label><select id={`add-${config.section}`} className="input max-w-md" value="" onChange={event => addProduct(config.section, event.target.value)}><option value="">Add a product…</option>{products.filter(product => !ids.includes(product.id)).map(product => <option key={product.id} value={product.id}>{product.title}</option>)}</select></div>}
@@ -146,7 +146,7 @@ export default function AdminLayoutPage() {
       })}
     </div>}
 
-    {tab === 'hero' && <section aria-label="Hero Banner">
+    {tab === 'hero' && <section className="admin-panel" aria-label="Hero Banner">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-5"><div><h2 className="font-serif text-2xl">Hero Banner</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Build a carousel of four or five images. Select a product image or upload a banner image, then drag slides into order.</p></div><div className="flex flex-wrap gap-3"><button type="button" onClick={addSlide} disabled={draft.heroSlides.length >= 5} className="btn-outline disabled:opacity-50"><Plus size={16} /> Add Slide</button>{sectionControls('heroSlides', 'Save Hero Banner')}</div></div>
       {draft.heroSlides.length === 0 && <div className="card p-10 text-center text-sm" style={{ color: 'var(--text-2)' }}>No slides configured. The current category carousel remains visible until you save your first slide.</div>}
       <ol className="space-y-5">

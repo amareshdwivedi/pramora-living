@@ -80,6 +80,39 @@
     @apply block text-xs font-medium uppercase tracking-widest mb-2;
     color: var(--text-2);
   }
+  .admin-shell {
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg) 14rem);
+  }
+  .admin-panel {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    @apply p-5 sm:p-7;
+  }
+  .admin-shell .card {
+    box-shadow: 0 8px 28px rgba(16, 25, 22, 0.06);
+  }
+  .admin-shell input[type='checkbox'] {
+    accent-color: var(--gold);
+  }
+  .admin-shell table {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .admin-shell table thead {
+    background-color: var(--bg-2);
+  }
+  .admin-shell table tbody tr:hover {
+    background-color: var(--hero-highlight);
+  }
+  .admin-shell table th:first-child,
+  .admin-shell table td:first-child {
+    padding-left: 1rem;
+  }
+  .admin-shell table th:last-child,
+  .admin-shell table td:last-child {
+    padding-right: 1rem;
+  }
 }
 
 /* Scrollbar */

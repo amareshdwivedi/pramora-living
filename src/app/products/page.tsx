@@ -8,13 +8,13 @@ export default async function ProductsPage() {
   const products = orderProducts(allProducts.filter(p => p.status === 'active'), layout.catalogOrder)
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
       {/* Header */}
-      <div className="text-center mb-12">
-        <p className="text-xs uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--gold)' }}>Our Collection</p>
+      <div className="text-center mb-8">
+        <p className="text-xs uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--gold)' }}>Our Collection</p>
         <h1 className="section-title">All Products</h1>
-        <div className="divider mx-auto" />
-        <p className="section-subtitle mx-auto text-center">
+        <div className="divider mx-auto mb-4" />
+        <p className="section-subtitle mx-auto max-w-none text-center text-sm sm:text-base mb-0 lg:whitespace-nowrap">
           Handcrafted pieces shaped by skilled artisans and chosen for thoughtful, lasting spaces.
         </p>
       </div>
