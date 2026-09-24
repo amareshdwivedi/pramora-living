@@ -4,6 +4,7 @@ export interface Product {
   title: string
   description: string
   aboutItem: string[]
+  reviews?: ProductReview[]
   type: string
   tags: string[]
   price: number
@@ -26,6 +27,14 @@ export interface Product {
   totalFees?: number | null
   amazonLastChanged?: string | null
   amazonSyncedAt?: string | null
+}
+
+export interface ProductReview {
+  id: string
+  name: string
+  rating: 3 | 4 | 5
+  text: string
+  source: 'illustrative'
 }
 
 export interface HeroSlide {

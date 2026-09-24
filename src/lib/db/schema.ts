@@ -28,6 +28,7 @@ export const products = pgTable('products', {
   amazonLastChanged: date('amazon_last_changed'),
   amazonSyncedAt: timestamp('amazon_synced_at', { withTimezone: true }),
   aboutItem: jsonb('about_item').$type<string[]>().notNull().default([]),
+  reviews: jsonb('reviews').$type<import('../types').ProductReview[]>().notNull().default([]),
 
   // ---- PRAMORA-CURATED (never touched by sync) ----
   sku: text('sku'),                                   // legacy/display SKU, e.g. "PL-001"
