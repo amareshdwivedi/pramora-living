@@ -9,7 +9,7 @@ import type { Product } from '@/lib/types'
 const EMPTY: Omit<Product, 'id'> = {
   handle: '', title: '', description: '', aboutItem: [], type: 'Sculpture',
   tags: [], price: 0, compareAtPrice: 0, sku: '', image: '', images: [],
-  status: 'active', amazonUrl: '',
+  status: 'active', amazonUrl: '', flipkartUrl: '', meeshoUrl: '',
 }
 
 function imageList(product: Partial<Product>): string[] {
@@ -113,7 +113,10 @@ export default function AdminProductEditor() {
             <div><label className="label">Price (₹) *</label><input className="input" type="number" value={form.price} onChange={e => setField('price', Number(e.target.value))} /></div>
             <div><label className="label">Compare-at price (₹)</label><input className="input" type="number" value={form.compareAtPrice} onChange={e => setField('compareAtPrice', Number(e.target.value))} /></div>
             <div><label className="label">Status</label><select className="input" value={form.status} onChange={e => setField('status', e.target.value as Product['status'])}><option value="active">Active</option><option value="draft">Draft</option></select></div>
-            <div><label className="label">Amazon URL</label><input className="input" value={form.amazonUrl || ''} onChange={e => setField('amazonUrl', e.target.value)} /></div>
+            <div><label className="label">Amazon URL</label><input className="input" type="url" value={form.amazonUrl || ''} onChange={e => setField('amazonUrl', e.target.value)} /></div>
+            <div><label className="label">Flipkart URL</label><input className="input" type="url" value={form.flipkartUrl || ''} onChange={e => setField('flipkartUrl', e.target.value)} /></div>
+            <div><label className="label">Meesho URL</label><input className="input" type="url" value={form.meeshoUrl || ''} onChange={e => setField('meeshoUrl', e.target.value)} /></div>
+            <p className="sm:col-span-2 lg:col-span-3 text-xs" style={{ color: 'var(--text-2)' }}>Leave a marketplace URL blank to link to its homepage. Add a product listing URL when that item goes live.</p>
             <div className="sm:col-span-2 lg:col-span-3"><label className="label">Description (HTML)</label><textarea className="input resize-none" rows={5} value={form.description} onChange={e => setField('description', e.target.value)} /></div>
             <div className="sm:col-span-2 lg:col-span-3"><label className="label">About this item (one bullet per line)</label><textarea className="input resize-none" rows={6} value={form.aboutItem.join('\n')} onChange={e => setField('aboutItem', e.target.value.split('\n').map(item => item.trim()).filter(Boolean))} /></div>
             <div className="sm:col-span-2 lg:col-span-3"><label className="label">Tags (comma separated)</label><input className="input" value={form.tags.join(', ')} onChange={e => setField('tags', e.target.value.split(',').map(tag => tag.trim()).filter(Boolean))} /></div>
