@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf7ef">
+  <title>Pramora Living — Theme Preview</title>
+  <style>
+    :root {
+      --paper: #faf7ef;
+      --sand: #f1e9da;
+      --sand-deep: #e6dcc9;
+      --ink: #30231b;
+      --muted: #75685b;
+      --teal: #087e78;
+      --teal-dark: #075d59;
+      --orange: #e98316;
+      --line: #e3d8c7;
+      --white: #fffdf8;
+      --serif: Georgia, 'Times New Roman', serif;
+      --sans: Inter, 'Avenir Next', Avenir, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--sans); }
+    a { color: inherit; text-decoration: none; }
+    .announcement { background: var(--teal-dark); color: #f9f4e9; text-align: center; padding: 10px 18px; font-size: 10px; letter-spacing: .17em; text-transform: uppercase; }
+    .header { height: 82px; display: flex; align-items: center; justify-content: space-between; padding: 0 max(5vw, 24px); border-bottom: 1px solid var(--line); background: rgba(250,247,239,.96); }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 200px; }
+    .brand img { width: 56px; height: 56px; object-fit: contain; mix-blend-mode: multiply; }
+    .brand-name { font-family: var(--serif); font-size: 20px; letter-spacing: .015em; }
+    nav { display: flex; gap: 36px; align-items: center; }
+    nav a { color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: .14em; }
+    nav a:first-child { color: var(--teal); }
+    .bag { border: 1px solid var(--line); border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; color: var(--teal); font-size: 17px; }
+    .hero { min-height: 600px; padding: 72px max(8vw, 28px); display: grid; grid-template-columns: .92fr 1.08fr; align-items: center; gap: 6vw; background: radial-gradient(ellipse at 78% 47%, #e7ede5 0, #f2eee4 29%, var(--sand) 70%); overflow: hidden; }
+    .eyebrow { color: var(--teal); font-size: 10px; letter-spacing: .24em; line-height: 1.7; text-transform: uppercase; font-weight: 700; }
+    h1 { font: 400 clamp(48px, 5.5vw, 76px)/.99 var(--serif); letter-spacing: -.035em; margin: 22px 0; max-width: 560px; }
+    h1 span { color: var(--teal); font-style: italic; }
+    .hero-copy { color: var(--muted); max-width: 430px; font: 16px/1.8 var(--serif); }
+    .actions { display: flex; align-items: center; gap: 24px; margin-top: 32px; }
+    .button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; padding: 0 24px; background: var(--teal); color: white; font-size: 10px; text-transform: uppercase; letter-spacing: .14em; transition: background .2s, transform .2s; }
+    .button:hover { background: var(--teal-dark); transform: translateY(-2px); }
+    .text-link { font-size: 11px; text-transform: uppercase; letter-spacing: .13em; color: var(--ink); border-bottom: 1px solid var(--orange); padding-bottom: 5px; }
+    .hero-art { position: relative; min-height: 430px; display: grid; place-items: center; }
+    .hero-art:before { content: ''; position: absolute; width: min(35vw, 430px); aspect-ratio: 1; border: 1px solid rgba(8,126,120,.22); border-radius: 50%; }
+    .hero-art:after { content: ''; position: absolute; width: min(29vw, 350px); aspect-ratio: 1; border: 1px solid rgba(8,126,120,.14); border-radius: 50%; }
+    .hero-photo { z-index: 1; width: min(39vw, 470px); height: min(39vw, 470px); object-fit: cover; border-radius: 50%; box-shadow: 0 25px 70px rgba(48,35,27,.16); }
+    .floating-note { position: absolute; z-index: 2; right: 2%; bottom: 6%; background: var(--white); padding: 18px 22px; box-shadow: 0 12px 32px #30231b17; }
+    .floating-note b { display: block; font: 19px var(--serif); }
+    .floating-note small { color: var(--muted); font-size: 9px; letter-spacing: .13em; text-transform: uppercase; }
+    .section { padding: 82px max(7vw, 24px); }
+    .section-head { text-align: center; margin-bottom: 42px; }
+    .section-head h2 { font: 400 42px/1.1 var(--serif); margin: 10px 0 12px; }
+    .section-head p { color: var(--muted); font: 15px/1.6 var(--serif); margin: 0; }
+    .products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 1160px; margin: auto; }
+    .product { background: var(--white); border: 1px solid var(--line); transition: transform .25s, box-shadow .25s; }
+    .product:hover { transform: translateY(-5px); box-shadow: 0 18px 38px #30231b12; }
+    .product-image { position: relative; aspect-ratio: 1.12; overflow: hidden; background: var(--sand); }
+    .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s; }
+    .product:hover .product-image img { transform: scale(1.04); }
+    .product-image em { position: absolute; left: 14px; top: 14px; background: var(--orange); color: white; padding: 7px 9px; font-style: normal; font-size: 9px; letter-spacing: .09em; text-transform: uppercase; }
+    .product-info { padding: 18px 19px 20px; }
+    .product-info small { color: var(--teal); text-transform: uppercase; letter-spacing: .15em; font-size: 9px; }
+    .product-info h3 { font: 21px/1.2 var(--serif); margin: 8px 0 12px; }
+    .price { font-size: 13px; font-weight: 600; }
+    .story { background: var(--teal-dark); color: #fbf7ef; padding: 66px max(9vw, 24px); display: grid; grid-template-columns: 1fr 1fr; gap: 6vw; align-items: center; }
+    .story .eyebrow { color: #e7a13f; }
+    .story h2 { font: 400 clamp(36px, 4vw, 54px)/1.08 var(--serif); margin: 14px 0; }
+    .story p { color: #d8e0d8; font: 15px/1.8 var(--serif); max-width: 460px; }
+    .story-photo { width: 100%; height: 300px; object-fit: cover; }
+    .swatches { display: flex; justify-content: center; gap: 10px; margin-top: 28px; }
+    .swatch { width: 23px; height: 23px; border-radius: 50%; border: 2px solid var(--white); box-shadow: 0 0 0 1px var(--line); }
+    .footer { display: flex; align-items: center; justify-content: space-between; padding: 24px max(5vw, 24px); color: var(--muted); font-size: 10px; letter-spacing: .1em; }
+    .footer strong { color: var(--teal-dark); font: 18px var(--serif); letter-spacing: 0; }
+    @media (max-width: 760px) {
+      .header { height: 70px; padding: 0 18px; }
+      .brand { min-width: 0; gap: 6px; }.brand img { width: 47px; height: 47px; }.brand-name { font-size: 16px; }
+      nav { gap: 14px; } nav a { font-size: 9px; letter-spacing: .08em; } nav a:nth-child(3) { display: none; }.bag { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 8px; padding: 58px 26px 32px; text-align: center; }
+      .hero-copy { margin-inline: auto; }.actions { justify-content: center; flex-wrap: wrap; }
+      .hero-art { min-height: 310px; }.hero-photo { width: min(72vw, 320px); height: min(72vw, 320px); }
+      .hero-art:before { width: min(80vw, 350px); }.hero-art:after { width: min(67vw, 290px); }.floating-note { right: 0; bottom: 1%; padding: 12px 15px; }
+      .section { padding: 60px 20px; }.section-head h2 { font-size: 35px; }
+      .products { grid-template-columns: 1fr; max-width: 420px; gap: 16px; }
+      .story { grid-template-columns: 1fr; padding: 54px 25px; gap: 22px; }.story-photo { height: 230px; order: 2; }
+      .footer { gap: 12px; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="announcement">Complimentary shipping on orders over ₹1,999</div>
+  <header class="header">
+    <a class="brand" href="#top" aria-label="Pramora Living home"><img src="/Pramora-Logo.png" alt=""><span class="brand-name">Pramora Living</span></a>
+    <nav aria-label="Main navigation"><a href="#top">Home</a><a href="#collection">Shop</a><a href="#story">Our Story</a></nav>
+    <a class="bag" href="#collection" aria-label="Shopping bag">⌑</a>
+  </header>
+  <main id="top">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Artisan made · Naturally considered</div>
+        <h1>Bring home<br>something <span>meaningful.</span></h1>
+        <p class="hero-copy">Handcrafted pieces with natural character, made to bring warmth and quiet beauty to the everyday.</p>
+        <div class="actions"><a class="button" href="#collection">Explore the collection&nbsp; →</a><a class="text-link" href="#story">The Pramora story</a></div>
+      </div>
+      <div class="hero-art">
+        <img class="hero-photo" src="/images/products/BV-HJ77-JDI6_B0H873CQ17_pramora-pakka-mango-wood-handcrafted-oval-serving-tray-with-live-edge-bark-borde/main.jpg" alt="Handcrafted mango wood tray">
+        <div class="floating-note"><b>Made by hand</b><small>Rooted in natural materials</small></div>
+      </div>
+    </section>
+    <section class="section" id="collection">
+      <div class="section-head"><div class="eyebrow">Thoughtfully chosen</div><h2>Pieces with a story</h2><p>Everyday objects, elevated through craft and care.</p><div class="swatches" aria-label="Theme color palette"><span class="swatch" style="background:#087e78"></span><span class="swatch" style="background:#e98316"></span><span class="swatch" style="background:#faf7ef"></span><span class="swatch" style="background:#30231b"></span><span class="swatch" style="background:#e3d8c7"></span></div></div>
+      <div class="products">
+        <article class="product"><div class="product-image"><img src="/images/products/5X-JAZO-ZY15_B0H86PRM34_pramora-handmade-sheesham-wood-carved-serving-tray-with-brass-inlay-hand-carved/main.jpg" alt="Carved sheesham serving tray"><em>Hand carved</em></div><div class="product-info"><small>Wood craft</small><h3>Carved Sheesham Tray</h3><span class="price">₹1,499</span></div></article>
+        <article class="product"><div class="product-image"><img src="/images/products/0Q-3Y4C-GJEM_B0H6M8XL65_pramora-sheesham-wooden-masala-dabba-namak-dani-8x8-inch-spice-box-with-glass-li/main.jpg" alt="Sheesham wood spice box"><em style="background:#087e78">Artisan favourite</em></div><div class="product-info"><small>Kitchen & dining</small><h3>Sheesham Spice Box</h3><span class="price">₹1,899</span></div></article>
+        <article class="product"><div class="product-image"><img src="/images/products/QT-9DW5-JAW8_B0GZF36JM2_pramora-thai-style-mother-and-child-elephant-figurines-brown-set-of-2/main.jpg" alt="Mother and child elephant figurines"></div><div class="product-info"><small>Decor accents</small><h3>Elephant Family Figurines</h3><span class="price">₹899</span></div></article>
+      </div>
+    </section>
+    <section class="story" id="story"><div><div class="eyebrow">A little more intention</div><h2>Craft that makes<br>a house feel like home.</h2><p>We bring together natural materials, thoughtful design, and the skill of artisans to find pieces worth keeping close.</p><a class="button" href="#collection" style="background:#e98316">Discover our story&nbsp; →</a></div><img class="story-photo" src="/images/products/YP-TQNX-D31G_B0H871F71K_pramora-mango-wood-serving-tray-with-black-finish-handles-rustic-modern-farmhous/main.jpg" alt="Hand-finished wooden serving tray"></section>
+  </main>
+  <footer class="footer"><strong>Pramora Living</strong><span>Made with care. Chosen to last.</span><span>Theme direction · Teal / warm ivory / spice orange</span></footer>
+</body>
+</html>

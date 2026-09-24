@@ -14,7 +14,7 @@ export function ProductCard({ product, variant = 'grid' }: { product: Product; v
       <div className={`relative ${variant === 'list' ? 'sm:w-56 sm:shrink-0' : ''}`}>
         <ProductImageCarousel images={product.images?.length ? product.images : product.image ? [product.image] : []} alt={product.title} className="product-img-wrap" />
         {discount > 0 && (
-          <span className="absolute top-3 left-3 bg-gold-500 text-white text-xs font-semibold px-2 py-0.5">
+          <span className="absolute top-3 left-3 text-white text-xs font-semibold px-2 py-0.5" style={{ backgroundColor: 'var(--orange)' }}>
             {discount}% OFF
           </span>
         )}

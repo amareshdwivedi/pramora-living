@@ -43,7 +43,7 @@ export default async function ProductPage({ params }: { params: { handle: string
           <div className="relative">
             <ProductImageCarousel images={images} alt={product.title} showThumbnails enableLightbox />
             {discount > 0 && (
-              <span className="absolute top-4 left-4 bg-gold-500 text-white text-xs font-bold px-3 py-1">
+              <span className="absolute top-4 left-4 text-white text-xs font-bold px-3 py-1" style={{ backgroundColor: 'var(--orange)' }}>
                 {discount}% OFF
               </span>
             )}
