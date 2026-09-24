@@ -29,6 +29,7 @@ function toProduct(r: ProductRow): Product {
     title: r.title,
     description: r.description,
     aboutItem: r.aboutItem ?? [],
+    reviews: r.reviews ?? [],
     type: r.type,
     tags: r.tags ?? [],
     price: num(r.price),

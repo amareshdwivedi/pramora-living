@@ -6,6 +6,7 @@ import { FaAmazon, FaWhatsapp, SiFlipkart, MeeshoIcon } from '@/components/Brand
 import { amazonProductUrl } from '@/lib/amazon/url'
 import { whatsappUrl, SITE_URL } from '@/lib/contact'
 import { ProductImageCarousel } from '@/components/ProductImageCarousel'
+import { CustomerReviews } from '@/components/CustomerReviews'
 
 // Render product pages on demand and keep them fresh; new items created by an
 // Amazon sync are served without a rebuild.
@@ -144,6 +145,7 @@ export default async function ProductPage({ params }: { params: { handle: string
           </ul>
         </section>
       )}
+      <CustomerReviews key={product.handle} reviews={product.reviews ?? []} />
       </div>
     </section>
   )
