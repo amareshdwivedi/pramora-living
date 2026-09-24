@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Check, Eye, EyeOff, LayoutGrid, Lock, Pencil, Plus, RefreshCw, Star, Trash2, X } from 'lucide-react'
+import { Check, Eye, EyeOff, LayoutGrid, Lock, Pencil, Plus, RefreshCw, Trash2, X } from 'lucide-react'
 import type { Product } from '@/lib/types'
 
 type FieldChange = { field: 'price' | 'inventory' | 'status' | 'title'; before: string | null; after: string | null }
@@ -122,7 +122,7 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-      <div className="flex items-center justify-between gap-4 mb-10"><div><h1 className="font-serif text-3xl font-medium" style={{ color: 'var(--text)' }}>Product Manager</h1><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{products.length} products</p></div><div className="flex flex-wrap justify-end gap-3"><Link href="/admin/featured" className="btn-outline"><Star size={16} /> Featured items</Link><Link href="/admin/layout" className="btn-outline"><LayoutGrid size={16} /> Page layout</Link><input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={event => { const file = event.target.files?.[0]; if (file) void syncAmazon(file) }} /><button onClick={() => fileRef.current?.click()} disabled={syncing} className="btn-outline"><RefreshCw size={16} className={syncing ? 'animate-spin' : ''} /> {syncing ? 'Syncing…' : 'Sync from Amazon'}</button><button onClick={() => router.push('/admin/products/new')} className="btn-gold"><Plus size={16} /> Add product</button></div></div>
+      <div className="flex items-center justify-between gap-4 mb-10"><div><h1 className="font-serif text-3xl font-medium" style={{ color: 'var(--text)' }}>Product Manager</h1><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>{products.length} products</p></div><div className="flex flex-wrap justify-end gap-3"><Link href="/admin/layout" className="btn-outline"><LayoutGrid size={16} /> Page layout</Link><input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={event => { const file = event.target.files?.[0]; if (file) void syncAmazon(file) }} /><button onClick={() => fileRef.current?.click()} disabled={syncing} className="btn-outline"><RefreshCw size={16} className={syncing ? 'animate-spin' : ''} /> {syncing ? 'Syncing…' : 'Sync from Amazon'}</button><button onClick={() => router.push('/admin/products/new')} className="btn-gold"><Plus size={16} /> Add product</button></div></div>
       {msg && <div className="mb-6 px-4 py-3 text-sm font-medium border-l-4 border-gold-500" style={{ backgroundColor: 'var(--bg-2)', color: 'var(--text)' }}>{msg}</div>}
       {report && <div className="mb-6 text-sm" style={{ color: 'var(--text-2)' }}>Last sync: {report.itemsCreated} new, {report.itemsUpdated} updated, {report.imagesFetched ?? 0} images fetched.</div>}
 
