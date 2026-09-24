@@ -32,6 +32,22 @@
     color: var(--text);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+  body:has(.home-story-flow) {
+    background-image:
+      linear-gradient(to bottom, var(--bg) 0%, color-mix(in srgb, var(--bg) 60%, transparent) 6%, color-mix(in srgb, var(--bg) 60%, transparent) 100%),
+      url('/footer.png');
+    background-size: 100% 33.333vw, 100% auto;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+  }
+  .site-header {
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--bg) 60%, transparent), color-mix(in srgb, var(--bg) 60%, transparent)),
+      url('/header.png');
+    background-size: cover;
+    background-position: center;
+  }
   h1, h2, h3, h4 { font-family: Georgia, 'Times New Roman', serif; }
   ::selection { background: var(--gold); color: var(--bg); }
   :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }

@@ -71,7 +71,7 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16" style={{ backgroundColor: 'var(--bg)' }}>
         <div className="text-center mb-8">
           <p className="text-xs uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--gold)' }}>Our Collection</p>
           <h2 className="section-title">Featured Pieces</h2>
@@ -91,7 +91,7 @@ export default async function HomePage() {
       </section>
 
       {/* Story section */}
-      <section className="py-20" style={{ backgroundColor: 'var(--bg-2)' }}>
+      <section className="home-story-flow py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="grid grid-cols-2 gap-3">
             {story.map(p => (
