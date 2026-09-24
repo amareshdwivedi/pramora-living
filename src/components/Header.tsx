@@ -36,8 +36,8 @@ export function Header() {
           <Image
             src="/Pramora-Logo.png"
             alt="Pramora"
-            width={1536}
-            height={1024}
+            width={1254}
+            height={1254}
             priority
             className="h-16 w-auto md:h-20"
           />

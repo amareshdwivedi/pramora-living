@@ -26,8 +26,8 @@ export function Footer() {
             <Image
               src="/Pramora-Logo.png"
               alt="Pramora"
-              width={1536}
-              height={1024}
+              width={1254}
+              height={1254}
               className="h-24 w-auto object-contain"
             />
           </Link>
