@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: 'Pramora Living — Artisan-Made Pieces',
   description: 'Thoughtfully handcrafted pieces made by skilled artisans using natural materials and conscious design.',
   keywords: 'artisan-made, handcrafted, natural materials, conscious design, India, gifting, Pramora Living',
+  icons: {
+    icon: '/Pramora-Logo.png',
+    apple: '/Pramora-Logo.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
