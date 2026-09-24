@@ -3,7 +3,7 @@
 The `/admin/layout` page manages three independent storefront areas:
 
 - **All Products Order:** drag rows or use the Move Up/Down buttons, then save. Only active products are shown. New active products appear at the end until reordered.
-- **Homepage:** choose and order up to six Featured Pieces and four Story Images. These lists do not change when the catalog order changes.
+- **Homepage:** choose and order up to six Featured Pieces and four Story Images. These lists do not change when the catalog order changes. The dedicated `/admin/featured` module provides a larger, searchable workspace for arranging the same Featured Pieces list.
 - **Hero Banner:** manage up to five slides. Each slide links to an active product and can show a product-gallery image or a banner-specific upload. Reorder slides, disable them, or remove them. Aim for four or five enabled slides.
 
 Each section has independent Save and Discard controls. Unsaved changes are visible only in the editor. Removing every hero slide restores the original category-based carousel.

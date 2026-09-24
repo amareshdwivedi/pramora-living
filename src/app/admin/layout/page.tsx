@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowDown, ArrowLeft, ArrowUp, GripVertical, ImagePlus, Plus, Save, Trash2 } from 'lucide-react'
 import type { HeroSlide, Product, SiteLayout } from '@/lib/types'
 import { orderProducts } from '@/lib/site-layout'
+import { ProductOrderList } from '@/components/admin/ProductOrderList'
 
 type Section = 'catalogOrder' | 'featuredOrder' | 'storyOrder' | 'heroSlides'
 type Tab = 'catalog' | 'home' | 'hero'
@@ -21,28 +22,6 @@ function move<T>(items: T[], from: number, to: number): T[] {
 
 function productImages(product: Product): string[] {
   return [...new Set([product.image, ...(product.images ?? [])].filter(Boolean))]
-}
-
-function ProductOrderList({ ids, products, onChange, onRemove, minLength = 0 }: { ids: string[]; products: Product[]; onChange: (ids: string[]) => void; onRemove?: (id: string) => void; minLength?: number }) {
-  const byId = new Map(products.map(product => [product.id, product]))
-  const [dragged, setDragged] = useState<string | null>(null)
-  return <ol className="space-y-2">
-    {ids.map((id, index) => {
-      const product = byId.get(id)
-      if (!product) return null
-      return <li key={id} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (dragged) onChange(move(ids, ids.indexOf(dragged), index)); setDragged(null) }} className={`card flex items-center gap-3 p-2 sm:p-3 ${dragged === id ? 'opacity-50' : ''}`}>
-        <span draggable onDragStart={event => { setDragged(id); event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', id) }} onDragEnd={() => setDragged(null)} className="shrink-0 cursor-grab" title="Drag to reorder"><GripVertical size={18} style={{ color: 'var(--text-2)' }} aria-hidden="true" /></span>
-        <span className="w-7 shrink-0 text-center text-xs" style={{ color: 'var(--text-2)' }}>{index + 1}</span>
-        <div className="relative h-12 w-12 shrink-0" style={{ background: 'var(--bg-2)' }}>{product.image && <Image src={product.image} alt="" fill className="object-contain p-1" sizes="48px" />}</div>
-        <span className="min-w-0 flex-1 truncate text-sm" style={{ color: 'var(--text)' }}>{product.title}</span>
-        <div className="flex shrink-0 items-center gap-1">
-          <button type="button" onClick={() => onChange(move(ids, index, index - 1))} disabled={index === 0} className="p-2 disabled:opacity-30" aria-label={`Move ${product.title} up`}><ArrowUp size={16} /></button>
-          <button type="button" onClick={() => onChange(move(ids, index, index + 1))} disabled={index === ids.length - 1} className="p-2 disabled:opacity-30" aria-label={`Move ${product.title} down`}><ArrowDown size={16} /></button>
-          {onRemove && <button type="button" onClick={() => onRemove(id)} disabled={ids.length <= minLength} className="p-2 hover:text-red-600 disabled:opacity-30" aria-label={`Remove ${product.title}`}><Trash2 size={16} /></button>}
-        </div>
-      </li>
-    })}
-  </ol>
 }
 
 export default function AdminLayoutPage() {
@@ -160,7 +139,7 @@ export default function AdminLayoutPage() {
       {([{ section: 'featuredOrder', title: 'Featured Pieces', max: 6 }, { section: 'storyOrder', title: 'Story Images', max: 4 }] as const).map(config => {
         const ids = draft[config.section]
         return <section key={config.section} aria-label={config.title}>
-          <div className="flex flex-wrap justify-between items-center gap-4 mb-5"><div><h2 className="font-serif text-2xl">{config.title}</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Choose and reorder up to {config.max} active products.</p></div>{sectionControls(config.section, `Save ${config.title}`)}</div>
+          <div className="flex flex-wrap justify-between items-center gap-4 mb-5"><div><h2 className="font-serif text-2xl">{config.title}</h2><p className="text-sm mt-1" style={{ color: 'var(--text-2)' }}>Choose and reorder up to {config.max} active products.</p>{config.section === 'featuredOrder' && <Link href="/admin/featured" className="inline-block text-sm underline mt-2" style={{ color: 'var(--gold)' }}>Open Featured Items workspace</Link>}</div>{sectionControls(config.section, `Save ${config.title}`)}</div>
           <ProductOrderList ids={ids} products={products} onChange={next => setSection(config.section, next)} onRemove={id => setSection(config.section, ids.filter(item => item !== id))} minLength={1} />
           {ids.length < config.max && <div className="flex items-center gap-2 mt-4"><Plus size={16} /><label htmlFor={`add-${config.section}`} className="sr-only">Add a product to {config.title}</label><select id={`add-${config.section}`} className="input max-w-md" value="" onChange={event => addProduct(config.section, event.target.value)}><option value="">Add a product…</option>{products.filter(product => !ids.includes(product.id)).map(product => <option key={product.id} value={product.id}>{product.title}</option>)}</select></div>}
         </section>
