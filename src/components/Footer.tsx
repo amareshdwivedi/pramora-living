@@ -19,21 +19,21 @@ const SHOP = [
 
 export function Footer() {
   return (
-    <footer className="border-t" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg)' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
+    <footer className="relative isolate" style={{ backgroundColor: 'transparent' }}>
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
 
         {/* Brand */}
         <div className="lg:col-span-2">
-          <Link href="/" className="inline-flex items-center mb-3" aria-label="Pramora Living — Home">
+          <Link href="/" className="inline-flex items-center mb-2" aria-label="Pramora Living — Home">
             <Image
               src="/Pramora-Logo.png"
               alt="Pramora"
               width={1254}
               height={1254}
-              className="h-24 w-auto object-contain"
+              className="h-16 w-auto object-contain"
             />
           </Link>
-          <p className="text-xs uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--gold)' }}>Artisan-Made Pieces</p>
+          <p className="text-xs uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--gold)' }}>Artisan-Made Pieces</p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>
             Artisan-crafted pieces made with natural character, thoughtful design, and a commitment to more conscious living.
           </p>
@@ -41,8 +41,8 @@ export function Footer() {
 
         {/* Quick Links */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Quick Links</h4>
-          <ul className="space-y-3">
+          <h4 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text)' }}>Quick Links</h4>
+          <ul className="space-y-2">
             {[
               { label: 'Home', href: '/' },
               { label: 'Products', href: '/products' },
@@ -59,8 +59,8 @@ export function Footer() {
 
         {/* Buy Online */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Buy Online</h4>
-          <ul className="space-y-3">
+          <h4 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text)' }}>Buy Online</h4>
+          <ul className="space-y-2">
             {SHOP.map(l => (
               <li key={l.label}>
                 <a
@@ -80,8 +80,8 @@ export function Footer() {
 
         {/* Social + Contact */}
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: 'var(--text)' }}>Follow Us</h4>
-          <div className="flex gap-3 mb-6">
+          <h4 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--text)' }}>Follow Us</h4>
+          <div className="flex gap-3 mb-4">
             {SOCIAL.map(s => (
               <a
                 key={s.label}
@@ -89,7 +89,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="w-9 h-9 flex items-center justify-center border rounded-full transition-all hover:border-gold-500 hover:text-gold-500"
+                className="w-8 h-8 flex items-center justify-center border rounded-full transition-all hover:border-gold-500 hover:text-gold-500"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}
               >
                 <s.Icon size={15} />
@@ -104,7 +104,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t py-5 px-4 text-center text-xs" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>
+      <div className="relative z-10 border-t py-4 px-4 text-center text-xs" style={{ borderColor: 'var(--border)', color: 'var(--text-2)' }}>
         © {new Date().getFullYear()} Pramora Living. All rights reserved. Crafted with care in India.
       </div>
     </footer>

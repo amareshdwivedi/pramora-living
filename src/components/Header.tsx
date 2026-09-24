@@ -29,7 +29,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--border)' }}>
+    <header className="site-header sticky top-0 z-50 border-b" style={{ borderColor: 'var(--border)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 md:h-24 flex items-center justify-between gap-6">
         {/* Logo */}
         <Link href="/" className="flex items-center" aria-label="Pramora Living — Home">
