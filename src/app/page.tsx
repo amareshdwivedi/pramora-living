@@ -6,10 +6,22 @@ import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
 import { whatsappUrl } from '@/lib/contact'
 import { ProductImageCarousel } from '@/components/ProductImageCarousel'
 import { CategoryHeroCarousel } from '@/components/CategoryHeroCarousel'
+import { getSiteLayout } from '@/lib/db/site-layout.repo'
+import { orderProducts, selectedProducts } from '@/lib/site-layout'
 
 export default async function HomePage() {
-  const products = (await getProducts()).filter(p => p.status === 'active')
-  const featured = products.slice(0, 6)
+  const [allProducts, layout] = await Promise.all([getProducts(), getSiteLayout()])
+  const products = orderProducts(allProducts.filter(p => p.status === 'active'), layout.catalogOrder)
+  const featured = selectedProducts(products, layout.featuredOrder, products, 6)
+  const story = selectedProducts(products, layout.storyOrder, products.slice(4, 8), 4)
+  const byId = new Map(products.map(product => [product.id, product]))
+  const heroSlides = layout.heroSlides.filter(slide => slide.enabled).flatMap(slide => {
+    const product = byId.get(slide.productId)
+    if (!product) return []
+    const imageUrl = slide.imageUrl.startsWith('/api/hero-image?url=') || [product.image, ...(product.images ?? [])].includes(slide.imageUrl)
+      ? slide.imageUrl : product.image
+    return imageUrl ? [{ id: slide.id, product, imageUrl }] : []
+  })
 
   return (
     <>
@@ -38,7 +50,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <CategoryHeroCarousel products={products} />
+          <CategoryHeroCarousel products={products} curatedSlides={heroSlides} />
         </div>
       </section>
 
@@ -84,7 +96,7 @@ export default async function HomePage() {
       <section className="py-20" style={{ backgroundColor: 'var(--bg-2)' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="grid grid-cols-2 gap-3">
-            {products.slice(4, 8).map(p => (
+            {story.map(p => (
               <Link key={p.handle} href={`/products/${p.handle}`} className="relative aspect-square overflow-hidden block focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-500">
                 <ProductImageCarousel
                   images={p.images?.length ? p.images : p.image ? [p.image] : []}

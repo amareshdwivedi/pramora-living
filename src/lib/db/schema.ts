@@ -1,4 +1,5 @@
 import { pgTable, uuid, text, numeric, date, timestamp, integer, jsonb } from 'drizzle-orm/pg-core'
+import type { HeroSlide } from '../types'
 
 /**
  * products
@@ -60,6 +61,16 @@ export const syncRuns = pgTable('sync_runs', {
   itemsUpdated: integer('items_updated').notNull().default(0),
   itemsUnchanged: integer('items_unchanged').notNull().default(0),
   changes: jsonb('changes').$type<SyncChange[]>().notNull().default([]),
+})
+
+/** Manually curated storefront placements; Amazon sync does not write here. */
+export const siteLayouts = pgTable('site_layouts', {
+  id: text('id').primaryKey(),
+  catalogOrder: jsonb('catalog_order').$type<string[]>().notNull().default([]),
+  featuredOrder: jsonb('featured_order').$type<string[]>().notNull().default([]),
+  storyOrder: jsonb('story_order').$type<string[]>().notNull().default([]),
+  heroSlides: jsonb('hero_slides').$type<HeroSlide[]>().notNull().default([]),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export type ProductRow = typeof products.$inferSelect

@@ -1,8 +1,11 @@
 import { getProducts } from '@/lib/products'
 import { ProductCatalog } from '@/components/ProductCatalog'
+import { getSiteLayout } from '@/lib/db/site-layout.repo'
+import { orderProducts } from '@/lib/site-layout'
 
 export default async function ProductsPage() {
-  const products = (await getProducts()).filter(p => p.status === 'active')
+  const [allProducts, layout] = await Promise.all([getProducts(), getSiteLayout()])
+  const products = orderProducts(allProducts.filter(p => p.status === 'active'), layout.catalogOrder)
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">

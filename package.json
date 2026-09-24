@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
+    "db:migrate:layout": "tsx --env-file=.env.local scripts/migrate-site-layout.ts",
     "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {

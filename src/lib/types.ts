@@ -27,3 +27,17 @@ export interface Product {
   amazonLastChanged?: string | null
   amazonSyncedAt?: string | null
 }
+
+export interface HeroSlide {
+  id: string
+  productId: string
+  imageUrl: string
+  enabled: boolean
+}
+
+export interface SiteLayout {
+  catalogOrder: string[]
+  featuredOrder: string[]
+  storyOrder: string[]
+  heroSlides: HeroSlide[]
+}
