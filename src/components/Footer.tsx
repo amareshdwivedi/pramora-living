@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter } from './BrandIcons'
+import { FaAmazon, FaWhatsapp, FaInstagram, FaFacebook, FaTwitter, SiFlipkart, MeeshoIcon } from './BrandIcons'
 import { whatsappUrl, WHATSAPP_NUMBER, PHONE_DISPLAY, CONTACT_EMAIL } from '@/lib/contact'
 
 const SOCIAL = [
@@ -12,6 +12,8 @@ const SOCIAL = [
 
 const SHOP = [
   { label: 'Amazon',         href: 'https://amazon.in',      color: '#FF9900', Icon: FaAmazon },
+  { label: 'Flipkart',       href: 'https://www.flipkart.com', color: '#2874F0', Icon: SiFlipkart },
+  { label: 'Meesho',         href: 'https://www.meesho.com',   color: '#5F1E8F', Icon: MeeshoIcon },
   { label: 'WhatsApp Store', href: whatsappUrl('Hi Pramora Living, I need help with your products.'), color: '#25D366', Icon: FaWhatsapp },
 ]
 
