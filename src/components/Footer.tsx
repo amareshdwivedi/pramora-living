@@ -17,11 +17,11 @@ const SHOP = [
 
 export function Footer() {
   return (
-    <footer className="border-t mt-20" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-2)' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="border-t" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg)' }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
 
         {/* Brand */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-2">
           <Link href="/" className="inline-flex items-center mb-3" aria-label="Pramora Living — Home">
             <Image
               src="/Pramora-Logo.png"

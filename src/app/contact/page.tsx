@@ -53,19 +53,19 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-      <div className="text-center mb-12">
-        <p className="text-xs uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--gold)' }}>Get In Touch</p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
+      <div className="text-center mb-8">
+        <p className="text-xs uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--gold)' }}>Get In Touch</p>
         <h1 className="section-title">Contact Us</h1>
-        <div className="divider mx-auto" />
-        <p className="section-subtitle mx-auto text-center">
+        <div className="divider mx-auto mb-4" />
+        <p className="section-subtitle mx-auto text-center mb-0">
           Have a question about our craftsmanship, materials, or collections? We'd love to help.
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-12">
+      <div className="grid lg:grid-cols-5 gap-6">
         {/* Info */}
-        <div className="lg:col-span-2">
+        <div className="card p-6 sm:p-8 lg:col-span-2">
           <h2 className="font-serif text-2xl font-medium mb-8" style={{ color: 'var(--text)' }}>Speak With Our Team</h2>
           <div className="space-y-6">
             {[

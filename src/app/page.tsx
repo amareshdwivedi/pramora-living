@@ -2,14 +2,24 @@ import Link from 'next/link'
 import { ArrowRight, Star, Truck, Shield, Package } from 'lucide-react'
 import { getProducts } from '@/lib/products'
 import { ProductCard } from '@/components/ProductCard'
-import { FaAmazon, FaWhatsapp } from '@/components/BrandIcons'
-import { whatsappUrl } from '@/lib/contact'
 import { ProductImageCarousel } from '@/components/ProductImageCarousel'
 import { CategoryHeroCarousel } from '@/components/CategoryHeroCarousel'
+import { getSiteLayout } from '@/lib/db/site-layout.repo'
+import { orderProducts, selectedProducts } from '@/lib/site-layout'
 
 export default async function HomePage() {
-  const products = (await getProducts()).filter(p => p.status === 'active')
-  const featured = products.slice(0, 6)
+  const [allProducts, layout] = await Promise.all([getProducts(), getSiteLayout()])
+  const products = orderProducts(allProducts.filter(p => p.status === 'active'), layout.catalogOrder)
+  const featured = selectedProducts(products, layout.featuredOrder, products, 6)
+  const story = selectedProducts(products, layout.storyOrder, products.slice(4, 8), 4)
+  const byId = new Map(products.map(product => [product.id, product]))
+  const heroSlides = layout.heroSlides.filter(slide => slide.enabled).flatMap(slide => {
+    const product = byId.get(slide.productId)
+    if (!product) return []
+    const imageUrl = slide.imageUrl.startsWith('/api/hero-image?url=') || [product.image, ...(product.images ?? [])].includes(slide.imageUrl)
+      ? slide.imageUrl : product.image
+    return imageUrl ? [{ id: slide.id, product, imageUrl }] : []
+  })
 
   return (
     <>
@@ -38,7 +48,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <CategoryHeroCarousel products={products} />
+          <CategoryHeroCarousel products={products} curatedSlides={heroSlides} />
         </div>
       </section>
 
@@ -61,12 +71,12 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
-        <div className="text-center mb-12">
-          <p className="text-xs uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--gold)' }}>Our Collection</p>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
+        <div className="text-center mb-8">
+          <p className="text-xs uppercase tracking-[0.3em] mb-2" style={{ color: 'var(--gold)' }}>Our Collection</p>
           <h2 className="section-title">Featured Pieces</h2>
-          <div className="divider mx-auto" />
-          <p className="section-subtitle mx-auto text-center">
+          <div className="divider mx-auto mb-4" />
+          <p className="section-subtitle mx-auto max-w-none text-center text-sm sm:text-base mb-0 lg:whitespace-nowrap">
             Each piece is carefully selected to bring beauty, meaning, and artisan excellence into your home.
           </p>
         </div>
@@ -84,7 +94,7 @@ export default async function HomePage() {
       <section className="py-20" style={{ backgroundColor: 'var(--bg-2)' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="grid grid-cols-2 gap-3">
-            {products.slice(4, 8).map(p => (
+            {story.map(p => (
               <Link key={p.handle} href={`/products/${p.handle}`} className="relative aspect-square overflow-hidden block focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold-500">
                 <ProductImageCarousel
                   images={p.images?.length ? p.images : p.image ? [p.image] : []}
@@ -111,30 +121,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Buy Online CTA */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <p className="text-xs uppercase tracking-[0.3em] mb-3" style={{ color: 'var(--gold)' }}>Available Online</p>
-        <h2 className="section-title">Shop Your Favourite<br />Platform</h2>
-        <div className="divider mx-auto" />
-        <div className="flex flex-wrap justify-center gap-4 mt-8">
-          {[
-            { label: 'Amazon',         href: 'https://amazon.in',      color: '#FF9900', Icon: FaAmazon },
-            { label: 'WhatsApp Store', href: whatsappUrl('Hi Pramora Living, I need help with your products.'), color: '#25D366', Icon: FaWhatsapp },
-          ].map(s => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-8 py-4 border-2 font-semibold text-sm transition-all hover:scale-105 duration-200"
-              style={{ borderColor: s.color, color: s.color }}
-            >
-              <s.Icon size={16} />
-              {s.label}
-            </a>
-          ))}
-        </div>
-      </section>
     </>
   )
 }
